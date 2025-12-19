@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mini URL Shortener</title>
+</head>
+<body style="font-family:sans-serif;max-width:480px;margin:40px auto">
+  <h2>URL Shortener</h2>
+
+  <input id="url" placeholder="https://contoh.com" style="width:100%;padding:10px" />
+  <input id="alias" placeholder="custom alias (opsional)" style="width:100%;padding:10px;margin-top:8px" />
+  <button onclick="buat()" style="margin-top:10px">Shorten</button>
+
+  <p id="hasil"></p>
+
+  <script>
+    async function buat(){
+      const long = document.getElementById('url').value
+      const alias = document.getElementById('alias').value
+
+      const r = await fetch('/api/create',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({url:long, alias})
+      })
+
+      const d = await r.json()
+      if(d.error){
+        document.getElementById('hasil').innerText = d.error
+      }else{
+        document.getElementById('hasil').innerHTML =
+          `<a href="/${d.code}" target="_blank">${location.origin}/${d.code}</a>`
+      }
+    }
+  </script>
+</body>
+</html>
