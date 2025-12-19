@@ -2,10 +2,16 @@ import { kv } from '@vercel/kv'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).end()
+    return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { url, alias } = req.body || {}
+  let body = ''
+  for await (const chunk of req) {
+    body += chunk
+  }
+
+  const { url, alias } = JSON.parse(body || '{}')
+
   if (!url) {
     return res.status(400).json({ error: 'URL kosong' })
   }
@@ -21,5 +27,5 @@ export default async function handler(req, res) {
 
   await kv.set(code, url)
 
-  return res.json({ code })
+  res.status(200).json({ code })
 }
