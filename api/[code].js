@@ -1,10 +1,10 @@
 import { kv } from '@vercel/kv'
 
-export default async function handler(req, res){
+export default async function handler(req, res) {
   const { code } = req.query
   const url = await kv.get(code)
 
-  if(!url){
+  if (!url) {
     return res.status(404).send('Link tidak ditemukan')
   }
 
