@@ -1,754 +1,128 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <link rel="canonical" href="https://shortmylink.site/">
-  <link rel="icon" href="/assets/img/favicon.ico" type="image/x-icon">
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="/assets/img/android-chrome-192x192.png">
-  <link rel="icon" type="image/png" sizes="512x512" href="/assets/img/android-chrome-512x512.png">
-  <link rel="shortcut icon" href="/assets/img/favicon.ico" type="image/x-icon">
-  <meta property="og:title" content="shortmylink — Pemendek URL cepat & modern">
-  <meta property="og:description" content="Buat tautan pendek yang rapi, cepat, dan mudah dibagikan.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://shortmylink.site/">
-  <meta property="og:image" content="https://shortmylink.site/assets/img/android-chrome-512x512.png">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#ffffff">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>shortmylink — Pemendek URL cepat & modern</title>
-  <meta name="description" content="Buat tautan pendek yang rapi, cepat, dan mudah dibagikan. Analytics sederhana dan dukungan multi-domain." />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&display=swap" rel="stylesheet">
+  <title>Shorten URL</title>
 
   <style>
-    .glass{backdrop-filter:blur(12px);background:rgba(255,255,255,.7)}
-    .tab-btn{border-bottom-width:2px}
-    .tab-btn.active{color:#4f46e5;border-color:#4f46e5}
-    @keyframes fadeIn { from {opacity:0; transform: translateY(6px)} to {opacity:1; transform: translateY(0)} }
-    @keyframes fadeOut{ from {opacity:1; transform: translateY(0)} to {opacity:0; transform: translateY(6px)} }
-    @media (prefers-reduced-motion: reduce){
-      *{animation:none !important;transition:none !important}
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
     }
-    :where(button, a, select, input, textarea):focus-visible{
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(79,70,229,.35);
-      border-radius: .75rem;
+
+    .card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.15);
     }
-    :where(button, a, select, input, textarea){
-      transition: box-shadow .15s ease, transform .15s ease;
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      text-align: center;
     }
-    .sr-only{
-      position:absolute;width:1px;height:1px;padding:0;margin:-1px;
-      overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 14px;
     }
-    .drop-shadow-glow{ filter: drop-shadow(0 8px 24px rgba(79,70,229,.25)); }
-    .font-hero{ font-family: 'Bricolage Grotesque', system-ui, sans-serif; letter-spacing:-.02em }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #4f46e5;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    #hasil {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      word-break: break-all;
+    }
+
+    a {
+      color: #4f46e5;
+      text-decoration: none;
+      font-weight: 600;
+    }
   </style>
 </head>
-<body class="bg-gradient-to-b from-[#F2F2F6] to-white text-gray-900 min-h-screen antialiased">
-<style>
-  /* Brand icon pakai mask agar warna mengikuti desain */
-  .brand-icon{
-    display:inline-block;
-    background-color:#111827; /* gray-900 */
-    -webkit-mask: url('/assets/img/logoe.svg') center/contain no-repeat;
-            mask: url('/assets/img/logoe.svg') center/contain no-repeat;
-  }
-  /* Geser konten saat sidebar desktop aktif */
-  @media (min-width: 768px){ .with-sidebar { margin-left: 16rem; } } /* 64 * 0.25rem = 16rem */
-</style>
+<body>
 
+  <div class="card">
+    <h1>🔗 URL Shortener</h1>
 
-<!-- TOP BAR -->
-<!-- TOP BAR -->
-<header class="sticky top-0 z-40 bg-white border-b border-gray-200">
-      <!-- LANDING / INDEX -->
-    <div class="max-w-7xl mx-auto h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-      <!-- kiri: brand -->
-      <div class="flex items-center gap-2">
-        <a href="/" class="flex items-center gap-2"><span class="brand-icon" style="width:40px;height:40px"></span> <span class="font-semibold text-xl tracking-tight text-gray-900">SHORTMYLINK</span></a>      </div>
+    <input id="url" placeholder="https://contoh.com" />
+    <input id="alias" placeholder="custom alias (opsional)" />
 
-      <!-- kanan: desktop = tombol; mobile = hamburger -->
-      <div class="flex items-center gap-2">
-        <nav class="hidden md:flex items-center gap-2">
-                      <a href="/login.php" class="px-3 py-1.5 rounded-lg border border-gray-300">Masuk</a>
-                  </nav>
-        <button data-menu-btn class="md:hidden h-9 w-9 grid place-items-center rounded-lg border border-gray-300"
-                aria-label="Open menu" aria-expanded="false" aria-controls="mobileDrawer">
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+    <button id="btn" onclick="buat()">Shorten</button>
 
-  </header>
-
-
-<!-- Drawer Landing (mobile) -->
-<div id="mobileDrawer" class="fixed inset-0 z-50 hidden">
-  <!-- overlay -->
-  <div class="absolute inset-0 bg-black/35"></div>
-
-  <!-- panel full layar -->
-  <aside class="absolute inset-0 bg-white shadow-2xl flex flex-col">
-    <!-- header drawer -->
-    <div class="h-16 px-4 flex items-center justify-between border-b border-gray-200">
-      <a href="/" class="flex items-center gap-2"><span class="brand-icon" style="width:40px;height:40px"></span> <span class="font-semibold text-xl tracking-tight text-gray-900">SHORTMYLINK</span></a>      <button id="drawerClose"
-              class="h-10 w-10 grid place-items-center rounded-xl border border-gray-300 hover:bg-gray-50"
-              aria-label="Tutup menu">✕</button>
-    </div>
-    <nav class="flex-1 overflow-y-auto px-4 py-3">
-              <a href="/#harga" class="block px-3 py-3 rounded-lg hover:bg-gray-100 text-[16px] font-medium">Harga</a>
-              <a href="/#layanan" class="block px-3 py-3 rounded-lg hover:bg-gray-100 text-[16px] font-medium">Layanan</a>
-              <a href="/#jelajahi" class="block px-3 py-3 rounded-lg hover:bg-gray-100 text-[16px] font-medium">Jelajahi</a>
-              <a href="/#bantuan" class="block px-3 py-3 rounded-lg hover:bg-gray-100 text-[16px] font-medium">Bantuan</a>
-          </nav>
-    <div class="p-4 border-t border-gray-200">
-              <a href="/login.php" class="w-full inline-flex items-center justify-center h-11 rounded-lg
-                  bg-white text-gray-900 border border-gray-300
-                  hover:bg-gray-50 active:scale-[.99]
-                  focus:outline-none focus:ring-2 focus:ring-indigo-600/35">Login</a>
-          </div>
-  </aside>
-</div>
-
-
-<script>
-/* Toggle drawer (landing & app) */
-(function(){
-  const drawer   = document.getElementById('mobileDrawer');
-  const toggles  = document.querySelectorAll('[data-menu-btn]');
-  const closeBtn = document.getElementById('drawerClose');
-  if (!drawer || !toggles.length) return;
-
-  const open = () => {
-    drawer.classList.remove('hidden');
-    document.body.style.overflow='hidden';
-    toggles.forEach(b=>b.setAttribute('aria-expanded','true'));
-  };
-  const close = () => {
-    drawer.classList.add('hidden');
-    document.body.style.overflow='';
-    toggles.forEach(b=>b.setAttribute('aria-expanded','false'));
-  };
-
-  toggles.forEach(btn => btn.addEventListener('click', () => {
-    drawer.classList.contains('hidden') ? open() : close();
-  }));
-  drawer.firstElementChild && drawer.firstElementChild.addEventListener('click', close); // backdrop
-  closeBtn && closeBtn.addEventListener('click', close);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !drawer.classList.contains('hidden')) close(); });
-})();
-</script>
-
-<main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10 sm:pt-16">
-  <!-- Hero -->
-  <section class="text-center">
-    <h1 class="font-hero leading-hero balance text-4xl md:text-6xl">
-      <span class="block md:inline text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">
-        Pendekkan.
-      </span>
-      <span class="block md:inline text-gray-800">Bagikan.</span>
-      <span class="block md:inline text-gray-800">Analisa.</span>
-    </h1>
-
-    <p class="mt-2 text-sm text-gray-500">
-      Sudah membuat <strong>11,941</strong> Link •
-      Mencatat <strong>6,524,711</strong> Klik
-    </p>
-  </section>
-
-  <!-- Card form -->
-  <section class="mt-8 sm:mt-12 grid gap-6 lg:grid-cols-3">
-    <div class="lg:col-span-2">
-      <div class="glass rounded-2xl shadow-xl border border-gray-200 p-4 sm:p-6">
-
-        <!-- Tabs -->
-        <div id="tabbar" class="flex gap-6 mb-4" role="tablist" aria-label="Shortener Tabs">
-          <button id="tab-single"  role="tab" aria-controls="panel-single"  aria-selected="true"  class="tab-btn px-1 pb-3 text-sm font-medium border-b-2 border-transparent -mb-[2px] active">Single URL</button>
-          <button id="tab-bulk"    role="tab" aria-controls="panel-bulk"    aria-selected="false" class="tab-btn px-1 pb-3 text-sm font-medium border-b-2 border-transparent -mb-[2px]">Bulk URL</button>
-          <button id="tab-results" role="tab" aria-controls="panel-results" aria-selected="false" class="tab-btn px-1 pb-3 text-sm font-medium border-b-2 border-transparent -mb-[2px] hidden">Result</button>
-        </div>
-
-        <!-- SINGLE -->
-        <div id="panel-single"  role="tabpanel" aria-labelledby="tab-single"  class="grid gap-4">
-          <form id="singleForm" class="grid gap-4" action="api_create.php" method="POST" novalidate>
-            <div>
-              <label class="text-sm font-medium">Pilih Domain</label>
-              <select
-                name="domain"
-                class="w-full h-12 px-4 rounded-xl
-                       bg-white
-                       border border-gray-300
-                       hover:border-gray-400
-                       focus:outline-none
-                       focus:border-indigo-600
-                       focus:ring-2 focus:ring-indigo-600/35">
-                                  <option value="videy.yt">videy.yt</option>
-                                  <option value="vidoy.de">vidoy.de</option>
-                                  <option value="vide0.fun">vide0.fun</option>
-                                  <option value="vidku.fun">vidku.fun</option>
-                                  <option value="1024terabox.de">1024terabox.de</option>
-                                  <option value="doodstream.uno">doodstream.uno</option>
-                                  <option value="cdn.videy.yt">cdn.videy.yt</option>
-                                  <option value="video.twimg.kim">video.twimg.kim</option>
-                                  <option value="videi.in">videi.in</option>
-                                  <option value="cdn.videi.in">cdn.videi.in</option>
-                              </select>
-            </div>
-
-            <div>
-              <label class="text-sm font-medium">Tempel URL</label>
-              <input
-                type="url"
-                name="long_url"
-                placeholder="https://contoh.com/"
-                class="w-full h-12 px-4 rounded-xl
-                       bg-white
-                       border border-gray-300
-                       hover:border-gray-400
-                       focus:outline-none
-                       focus:border-indigo-600
-                       focus:ring-2 focus:ring-indigo-600/35" />
-            </div>
-
-            <button type="submit" id="singleSubmit"
-              class="w-full sm:w-auto mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white px-5 py-3 font-semibold hover:bg-indigo-700 active:scale-[.99]">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16m-7-7l7 7-7 7"/>
-              </svg>
-              Buat Shortlink
-            </button>
-
-            <p class="text-xs text-gray-500">Dengan melanjutkan, Anda setuju pada ketentuan penggunaan.</p>
-          </form>
-
-          <div id="singleAlert" class="hidden mt-4 rounded-xl border p-3 text-sm"></div>
-        </div>
-
-        <!-- BULK -->
-        <div id="panel-bulk" role="tabpanel" aria-labelledby="tab-bulk" class="hidden grid gap-4">
-          <div>
-            <label class="text-sm font-medium">Pilih Domain</label>
-            <select id="bulkDomain"
-              class="w-full rounded-xl h-12 px-4
-                     bg-white
-                     border border-gray-300
-                     hover:border-gray-400
-                     focus:outline-none
-                     focus:border-indigo-600
-                     focus:ring-2 focus:ring-indigo-600/35">
-                              <option value="videy.yt">videy.yt</option>
-                              <option value="vidoy.de">vidoy.de</option>
-                              <option value="vide0.fun">vide0.fun</option>
-                              <option value="vidku.fun">vidku.fun</option>
-                              <option value="1024terabox.de">1024terabox.de</option>
-                              <option value="doodstream.uno">doodstream.uno</option>
-                              <option value="cdn.videy.yt">cdn.videy.yt</option>
-                              <option value="video.twimg.kim">video.twimg.kim</option>
-                              <option value="videi.in">videi.in</option>
-                              <option value="cdn.videi.in">cdn.videi.in</option>
-                          </select>
-          </div>
-
-          <div>
-            <label class="text-sm font-medium">Tempel URLs (satu per baris max 20)</label>
-            <textarea id="bulkTextarea" rows="8"
-              class="w-full rounded-xl px-4 py-3
-                     bg-white
-                     border border-gray-300
-                     hover:border-gray-400
-                     focus:outline-none
-                     focus:border-indigo-600
-                     focus:ring-2 focus:ring-indigo-600/35"
-              placeholder="https://contoh.com/1
-https://contoh.com/2
-https://contoh.com/3"></textarea>
-          </div>
-
-          <div class="space-y-2">
-            <button id="bulkStart"
-              class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white px-5 py-3 font-semibold hover:bg-indigo-700 active:scale-[.99]">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12h16m-7-7l7 7-7 7"/>
-              </svg>
-              Buat Bulk Shortlink
-            </button>
-            <span id="bulkHint" class="block text-sm text-gray-500"></span>
-          </div>
-          <p class="text-xs text-gray-500">Dengan melanjutkan, Anda setuju pada ketentuan penggunaan.</p>
-          <div id="bulkAlert" class="hidden mt-2 rounded-xl border p-3 text-sm"></div>
-        </div>
-
-        <!-- HASIL -->
-        <div id="panel-results" role="tabpanel" aria-labelledby="tab-results" class="hidden">
-          <div class="flex items-center justify-end gap-3">
-            <button id="copyAllBtn" aria-label="Salin semua short URL"
-              class="hidden inline-flex items-center gap-1 px-4 py-2 rounded-lg border border-gray-300 text-sm hover:bg-gray-50">
-              <span class="lbl">Salin Semua</span><span class="check hidden">✓</span>
-            </button>
-          </div>
-
-          <div id="resultsList" class="md:hidden space-y-3 mt-2"></div>
-
-          <div class="hidden md:block overflow-x-auto mt-2">
-            <table class="min-w-full table-fixed divide-y divide-gray-200">
-              <colgroup>
-                <col class="w-5/12" /><col class="w-5/12" /><col class="w-2/12" /><col class="w-2/12" />
-              </colgroup>
-              <thead class="bg-gray-50">
-                <tr>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Original URL</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Short URL / Error</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="resultsBody" class="bg-white divide-y divide-gray-200"></tbody>
-            </table>
-          </div>
-
-          <p id="emptyState" class="text-sm text-gray-500 p-4">Belum ada hasil. Buat shortlink di tab <b>Single</b> atau <b>Bulk</b>.</p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- Aside -->
-    <aside class="space-y-3">
-      <div class="flex items-start gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
-        <div class="h-9 w-9 rounded-lg bg-indigo-100 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11a4 4 0 100-8 4 4 0 000 8z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 22s8-4.5 8-11a8 8 0 10-16 0c0 6.5 8 11 8 11z"/>
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold">Multi-domain</p>
-          <p class="text-sm text-gray-600">Pilih domain yang cocok untuk kampanye dan branding kamu.</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
-        <div class="h-9 w-9 rounded-lg bg-indigo-100 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3L4 14h7l-1 7 9-11h-7l1-7z"/>
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold">Cepat & modern</p>
-          <p class="text-sm text-gray-600">Tautan singkat, loading kilat.</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
-        <div class="h-9 w-9 rounded-lg bg-indigo-100 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M7 13l3 3 7-7"/>
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold">Statistik klik</p>
-          <p class="text-sm text-gray-600">Pantau performa: total klik, periode dasar, dan ringkasan top link.</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3 p-4 rounded-2xl border border-gray-200 bg-white">
-        <div class="h-9 w-9 rounded-lg bg-indigo-100 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 4v5c0 5-3.5 9-7 9s-7-4-7-9V7l7-4z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/>
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold">Aman & transparan</p>
-          <p class="text-sm text-gray-600">Validasi URL, pesan galat jelas, klik tercatat rapi.</p>
-        </div>
-      </div>
-
-      <div class="flex items-start gap-3 p-4 rounded-2xl border border-amber-200 bg-amber-50/40">
-        <div class="h-9 w-9 rounded-lg bg-amber-100 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 8l5-2v12l-5-2M15 8H7a3 3 0 00-3 3v2a3 3 0 003 3h8M7 13v6"/>
-          </svg>
-        </div>
-        <div>
-          <p class="font-semibold">Fitur Gratis dengan rotasi iklan 4:1</p>
-          <p class="text-sm text-amber-800">
-            Untuk mendukung layanan gratis, setiap <b>4 klik ke URL kamu</b> akan ada <b>1 klik ke halaman sponsor/iklan</b>.
-            Dengan menggunakan layanan ini, Anda menyetujui skema tersebut.
-          </p>
-        </div>
-      </div>
-    </aside>
-
-  </section>
-
-  <section class="mt-12 sm:mt-16 text-center">
-    <p class="text-gray-600">Ingin fitur lanjutan? <a href="register.php" class="text-indigo-600 font-medium">Buat akun gratis</a>.</p>
-  </section>
-</main>
-
-<footer class="w-full py-8">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <p class="text-[13px] text-gray-700">
-      &copy; 2025 <span class="font-medium">shortmylink</span> &middot;
-      <span class="text-gray-500">Semua hak dilindungi.</span>
-    </p>
+    <div id="hasil"></div>
   </div>
-</footer>
 
-<script>
-  // Tabs
-  const tabSingle  = document.getElementById('tab-single');
-  const tabBulk    = document.getElementById('tab-bulk');
-  const tabResults = document.getElementById('tab-results');
-  const panelSingle= document.getElementById('panel-single');
-  const panelBulk  = document.getElementById('panel-bulk');
-  const panelRes   = document.getElementById('panel-results');
+  <script>
+    async function buat(){
+      const url = document.getElementById('url').value.trim()
+      const alias = document.getElementById('alias').value.trim()
+      const hasil = document.getElementById('hasil')
+      const btn = document.getElementById('btn')
 
-  function showTab(which){
-    const map = {
-      single:  {btn: tabSingle,  panel: panelSingle},
-      bulk:    {btn: tabBulk,    panel: panelBulk},
-      results: {btn: tabResults, panel: panelRes}
-    };
-    if (!map[which]) which = 'single';
-
-    [tabSingle, tabBulk, tabResults].forEach(b=>{
-      b.classList.remove('active');
-      b.setAttribute('aria-selected','false');
-    });
-    [panelSingle, panelBulk, panelRes].forEach(p=>{
-      p.classList.add('hidden');
-      p.setAttribute('hidden','');
-    });
-
-    const {btn, panel} = map[which];
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected','true');
-    panel.classList.remove('hidden');
-    panel.removeAttribute('hidden');
-
-    if (which === 'single'){
-      const inp = document.querySelector('input[name="long_url"]');
-      if (inp) setTimeout(()=>inp.focus({preventScroll:true}), 0);
-    }
-  }
-  showTab('single');
-
-  // Shared results
-  const resultsBody = document.getElementById('resultsBody');
-  const resultsList = document.getElementById('resultsList');
-  const emptyState  = document.getElementById('emptyState');
-  const copyAllBtn  = document.getElementById('copyAllBtn');
-
-  function clearResults() {
-    resultsBody.innerHTML = '';
-    resultsList.innerHTML = '';
-    emptyState.classList.remove('hidden');
-    copyAllBtn.classList.add('hidden');
-  }
-  function ensureResultsTabVisible(){ tabResults.classList.remove('hidden'); }
-
-  // ==== PERBAIKAN: pakai class .short-url + data-short-url ====
-  function getAllShortUrls() {
-    const urls = [];
-
-    resultsBody.querySelectorAll('.short-url').forEach(a => {
-      const t = (a.dataset.shortUrl || a.textContent || '').trim();
-      if (t) urls.push(t);
-    });
-
-    resultsList.querySelectorAll('.short-url').forEach(a => {
-      const t = (a.dataset.shortUrl || a.textContent || '').trim();
-      if (t) urls.push(t);
-    });
-
-    return Array.from(new Set(urls));
-  }
-  // ============================================================
-
-  function updateCopyAllVisibility(){
-    copyAllBtn.classList.toggle('hidden', getAllShortUrls().length === 0);
-  }
-
-  copyAllBtn.addEventListener('click', () => {
-    const all = getAllShortUrls();
-    if (!all.length) { showToast('Belum ada short URL', 'info'); return; }
-    const lbl = copyAllBtn.querySelector('.lbl'); const chk = copyAllBtn.querySelector('.check');
-    const original = lbl ? lbl.textContent : 'Salin Semua';
-    navigator.clipboard.writeText(all.join('\n')).then(()=>{
-      showToast(`${all.length} Link disalin`, 'success');
-      if (lbl) lbl.textContent='Tersalin Semua'; if (chk) chk.classList.remove('hidden');
-      copyAllBtn.classList.add('pointer-events-none','opacity-70');
-      setTimeout(()=>{
-        if (lbl) lbl.textContent=original;
-        if (chk) chk.classList.add('hidden');
-        copyAllBtn.classList.remove('pointer-events-none','opacity-70');
-      },1200);
-    }).catch(()=>showToast('Gagal menyalin','error'));
-  });
-
-  function escapeHTML(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-  function copyWithButtonFeedback(btn, textToCopy) {
-    navigator.clipboard.writeText(textToCopy).then(()=>{
-      const lbl=btn.querySelector('.lbl'); const ok=btn.querySelector('.ok');
-      if (lbl) lbl.textContent='Tersalin'; if (ok) ok.classList.remove('hidden');
-      btn.classList.add('opacity-70','pointer-events-none');
-      showToast('Link disalin', 'success');
-      setTimeout(()=>{
-        if (lbl) lbl.textContent='Salin';
-        if (ok) ok.classList.add('hidden');
-        btn.classList.remove('opacity-70','pointer-events-none');
-      },1200);
-    }).catch(()=>showToast('Gagal menyalin','error'));
-  }
-
-  function pushResultRow(longUrl, shortOrError, ok){
-    ensureResultsTabVisible(); emptyState.classList.add('hidden');
-
-    // Tabel (desktop)
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="px-4 py-2 text-sm text-gray-600 break-all">${escapeHTML(longUrl)}</td>
-      <td class="px-4 py-2 text-sm">
-        ${ ok
-            ? `<a href="${shortOrError}" target="_blank" rel="noopener noreferrer"
-                  class="text-indigo-600 break-all short-url"
-                  data-short-url="${escapeHTML(shortOrError)}">${escapeHTML(shortOrError)}</a>`
-            : `<span class="text-red-600 break-all">${escapeHTML(shortOrError)}</span>` }
-      </td>
-      <td class="px-4 py-2 text-sm">
-        ${ ok
-            ? `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Success</span>`
-            : `<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Failed</span>` }
-      </td>
-      <td class="px-4 py-2 text-sm">
-        ${ ok ? `
-<button aria-label="Salin short URL: ${escapeHTML(shortOrError)}"
-        class="copy-btn relative inline-flex items-center justify-center gap-1
-               px-3 py-1.5 rounded-lg border border-gray-300
-               min-w-[108px] text-center">
-  <span class="lbl">Salin</span><span class="ok hidden">✓</span>
-</button>` : '' }
-      </td>`;
-    resultsBody.appendChild(tr);
-    if (ok) tr.querySelector('.copy-btn').onclick=(e)=>copyWithButtonFeedback(e.currentTarget, shortOrError);
-
-    // Kartu (mobile)
-    const card = document.createElement('div');
-    card.className = "rounded-xl border border-gray-200 p-3 md:hidden";
-    card.innerHTML = `
-      <div class="text-xs uppercase tracking-wide text-gray-500">Original</div>
-      <div class="text-sm break-all text-gray-700">${escapeHTML(longUrl)}</div>
-      <div class="mt-2 text-xs uppercase tracking-wide text-gray-500">Short / Error</div>
-      <div class="text-sm break-all">
-        ${ ok
-            ? `<a href="${shortOrError}" target="_blank" rel="noopener noreferrer"
-                  class="text-indigo-600 short-url"
-                  data-short-url="${escapeHTML(shortOrError)}">${escapeHTML(shortOrError)}</a>`
-            : `<span class="text-red-600">${escapeHTML(shortOrError)}</span>` }
-      </div>
-      <div class="mt-3 flex items-center justify-between">
-        <span class="${ok ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-2 py-0.5 rounded-full text-xs font-semibold">
-          ${ok ? 'Success' : 'Failed'}
-        </span>
-        ${ ok ? `
-<button aria-label="Salin short URL: ${escapeHTML(shortOrError)}"
-        class="copy-btn-mobile relative inline-flex items-center justify-center gap-1
-               px-3 py-1.5 rounded-lg border border-gray-300 text-sm
-               min-w-[108px] text-center">
-  <span class="lbl">Salin</span><span class="ok hidden">✓</span>
-</button>` : '' }
-      </div>`;
-    resultsList.appendChild(card);
-    if (ok) card.querySelector('.copy-btn-mobile').onclick=(e)=>copyWithButtonFeedback(e.currentTarget, shortOrError);
-
-    updateCopyAllVisibility();
-  }
-
-  // SINGLE
-  const singleForm  = document.getElementById('singleForm');
-  const singleAlert = document.getElementById('singleAlert');
-
-  singleForm.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    singleAlert.classList.add('hidden');
-    const fd = new FormData(singleForm);
-
-    const rawUrl   = String(fd.get('long_url') || '').trim();
-    const urlInput = singleForm.querySelector('input[name="long_url"]');
-    if (!rawUrl) { showToast('URL wajib diisi.', 'warn'); urlInput && urlInput.focus(); return; }
-    if (!/^https?:\/\//i.test(rawUrl)) { showToast('URL tidak valid. Sertakan http(s)://', 'warn'); urlInput && urlInput.focus(); return; }
-
-    clearResults(); updateCopyAllVisibility();
-
-    try{
-      const res  = await fetch('api_create.php', { method:'POST', body: fd });
-      const data = await res.json();
-      if (data.ok){
-        pushResultRow(rawUrl, data.short || '', true);
-        showTab('results'); singleForm.reset();
-        showToast('Shortlink berhasil dibuat','success');
-      } else {
-        showAlert(singleAlert, data.error || 'Gagal membuat shortlink', false);
-        pushResultRow(rawUrl, data.error || 'Error', false);
-        showTab('results');
+      if(!url){
+        hasil.innerText = 'URL tidak boleh kosong'
+        return
       }
-    }catch{
-      showAlert(singleAlert, 'Terjadi kesalahan jaringan.', false);
-      pushResultRow(rawUrl, 'Network error', false);
-      showTab('results');
-    }
-  });
 
-  // BULK
-  const bulkStart    = document.getElementById('bulkStart');
-  const bulkDomain   = document.getElementById('bulkDomain');
-  const bulkTextarea = document.getElementById('bulkTextarea');
-  const bulkAlert    = document.getElementById('bulkAlert');
-  const bulkHint     = document.getElementById('bulkHint');
+      btn.disabled = true
+      btn.innerText = 'Memproses...'
+      hasil.innerText = ''
 
-  bulkTextarea.setAttribute('autocomplete','off');
-  bulkTextarea.setAttribute('autocapitalize','off');
-  bulkTextarea.setAttribute('spellcheck','false');
+      try {
+        const r = await fetch('/api/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url, alias })
+        })
 
-  function getLinesRaw(text){
-    return text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  }
+        const d = await r.json()
 
-  async function createBulk(domain, urls){
-    const res = await fetch('api_bulk.php', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ domain, urls })
-    });
-    return res.json();
-  }
-
-  const MAX_BULK = 20;
-
-  bulkTextarea.addEventListener('input', () => {
-    const lines = getLinesRaw(bulkTextarea.value);
-    if (lines.length > MAX_BULK) {
-      bulkTextarea.value = lines.slice(0, MAX_BULK).join('\n');
-      showToast(`Maksimal ${MAX_BULK} URL ditampilkan.`, 'warn');
-    }
-  });
-
-  bulkStart.addEventListener('click', async () => {
-    bulkAlert.classList.add('hidden');
-
-    const domain = bulkDomain.value;
-    let lines = getLinesRaw(bulkTextarea.value);
-
-    if (lines.length > MAX_BULK) {
-      showToast(`Maksimal ${MAX_BULK} URL per batch. ${lines.length - MAX_BULK} sisanya diabaikan.`, 'warn');
-      lines = lines.slice(0, MAX_BULK);
-    }
-    if (!lines.length) { showToast('Mohon isi minimal satu URL.', 'warn'); bulkTextarea.focus(); return; }
-
-    clearResults(); updateCopyAllVisibility();
-    showTab('results');
-
-    const oldHtml = bulkStart.innerHTML;
-    bulkStart.classList.add('pointer-events-none','opacity-70');
-    bulkHint.textContent = `Mengirim ${lines.length} URL...`;
-    bulkStart.innerHTML  = `Mengirim ${lines.length} URL...`;
-
-    try {
-      const data = await createBulk(domain, lines);
-
-      if (!data.ok) {
-        showAlert(bulkAlert, data.error || 'Gagal memproses.', false);
-      } else {
-        if (data.note) showToast(data.note, 'warn');
-
-        const results = Array.isArray(data.results) ? data.results : [];
-        for (const row of results) {
-          if (row.ok) {
-            pushResultRow(row.url || '', row.short || '', true);
-          } else {
-            pushResultRow(row.url || '', row.error || 'Error', false);
-          }
+        if(d.error){
+          hasil.innerText = d.error
+        } else {
+          const short = location.origin + '/' + d.code
+          hasil.innerHTML = `<a href="${short}" target="_blank">${short}</a>`
         }
-        showToast(`Selesai memproses ${results.length} URL`, 'success');
+      } catch(e){
+        hasil.innerText = 'Terjadi kesalahan'
       }
-    } catch (e) {
-      showAlert(bulkAlert, 'Network error.', false);
-    } finally {
-      bulkTextarea.value = '';
-      bulkTextarea.dispatchEvent(new Event('input', { bubbles: true }));
-      bulkHint.textContent = '';
-      bulkStart.innerHTML = oldHtml;
-      bulkStart.classList.remove('pointer-events-none','opacity-70');
+
+      btn.disabled = false
+      btn.innerText = 'Shorten'
     }
-  });
+  </script>
 
-  // Helpers
-  function showAlert(el, msg, ok){
-    el.textContent = msg;
-    el.className = 'mt-4 rounded-xl border p-3 text-sm ' +
-      (ok ? 'border-green-200 bg-green-50'
-          : 'border-red-200 bg-red-50');
-    el.classList.remove('hidden');
-  }
-
-  function showToast(message, type = 'success') {
-    let wrap = document.getElementById('toastWrap');
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.id = 'toastWrap';
-      wrap.className = 'fixed bottom-4 right-4 z-[9999] space-y-2 pointer-events-none';
-      document.body.appendChild(wrap);
-    }
-    const base =
-      'pointer-events-auto flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg ' +
-      'backdrop-blur bg-white/90 ';
-    const okClass   = 'border-green-200  text-green-800';
-    const errClass  = 'border-red-200    text-red-800';
-    const infoClass = 'border-gray-200   text-gray-800';
-    const warnClass = 'border-amber-200  text-amber-800';
-    const cls = (type==='error') ? errClass :
-                (type==='info')  ? infoClass :
-                (type==='warn')  ? warnClass : okClass;
-
-    const el = document.createElement('div');
-    el.className = base + cls + ' animate-[fadeIn_.18s_ease-out]';
-    el.innerHTML = `
-      <span>${type==='error'?'🚫': type==='warn'?'⚠️': type==='info'?'ℹ️':'✅'}</span>
-      <span class="text-sm">${message}</span>
-    `;
-    wrap.appendChild(el);
-
-    const sr = document.getElementById('sr-live');
-    if (sr) {
-      sr.textContent =
-        (type === 'error' ? 'Error: ' :
-         type === 'warn'  ? 'Peringatan: ' :
-         type === 'info'  ? 'Info: ' : 'Sukses: ') +
-        String(message || '');
-    }
-    setTimeout(()=>{
-      el.classList.add('animate-[fadeOut_.2s_ease-in_forwards]');
-      setTimeout(()=>el.remove(),220);
-    },2000);
-  }
-
-  tabSingle.addEventListener('click',  () => showTab('single'));
-  tabBulk.addEventListener('click',    () => showTab('bulk'));
-  tabResults.addEventListener('click', () => showTab('results'));
-</script>
-
-<div id="toastWrap" class="fixed bottom-4 right-4 z-[9999] space-y-2 pointer-events-none"></div>
-<div id="sr-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-<script defer src="https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015" integrity="sha512-ZpsOmlRQV6y907TI0dKBHq9Md29nnaEIPlkf84rnaERnq6zvWvPUqr2ft8M1aS28oN72PdrCzSjY4U6VaAw1EQ==" data-cf-beacon='{"version":"2024.11.0","token":"3e1ce8e495524cee9af7aa0a213e70f7","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
