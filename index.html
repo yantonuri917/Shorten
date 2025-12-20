@@ -311,26 +311,5 @@ setInterval(function(){
 
  
   </body>
-  <script>
-(function () {
-  function randomString(length) {
-    const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
-  const path = window.location.pathname.replace(/^\/+/, "");
-  const params = window.location.search;
-
-  // kalau belum ada path acak
-  if (path === "" || path === "index.html") {
-    const rand = randomString(8); // panjang huruf acak
-    window.location.replace("/" + rand + params);
-  }
-})();
-  </script>
   
 </html>
