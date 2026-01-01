@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>hott</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#popup{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,0.62);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    z-index:9999;
+    transition: opacity 0.25s ease, visibility 0.25s;
+  }
+  #popup.visible{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
+
+  .popup-content{
+    width: min(500px, 92%);
+    background: linear-gradient(180deg,#ffffff,#f7f7f7);
+    border-radius:16px;
+    padding:30px 25px;
+    text-align:center;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+    transform: translateY(10px) scale(0.96);
+    opacity:0;
+    transition: transform 0.3s cubic-bezier(.2,.9,.2,1), opacity 0.3s;
+  }
+  #popup.visible .popup-content{
+    transform: translateY(0) scale(1);
+    opacity:1;
+  }
+
+  .popup-content h2{
+    margin:0 0 12px;
+    font-size:22px;
+    font-weight:700;
+    color:#111;
+  }
+  .popup-content p{
+    margin:0 0 20px;
+    color:#333;
+    font-size:16px;
+    line-height:1.5;
+  }
+
+  .btn{
+    display:inline-block;
+    padding:14px 28px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:16px;
+    box-shadow: 0 8px 22px rgba(204,0,0,0.25);
+    transition: transform .18s ease;
+    background: linear-gradient(135deg,#ff3b3b,#cc0000);
+    color:#fff;
+  }
+  .btn:hover{ transform: translateY(-3px) scale(1.03); }
+
+  @media (max-width:480px){
+    .popup-content{ padding:22px 18px; }
+    .popup-content h2{ font-size:18px; }
+    .popup-content p{ font-size:14px; }
+    .btn{ padding:12px 22px; font-size:14px; }
+  }
+</style>
+</head>
+<body>
+<!-- VIDEO -->
+<video
+  autoplay
+  muted
+  loop
+  controls
+  playsinline
+  controlsList="nodownload noplaybackrate nofullscreen"
+  disablePictureInPicture
+  oncontextmenu="return false;">
+  <source src="https://cdn.videy.co/XF3ulqxY1.mp4" type="video/mp4">
+</video>
+
+<!-- POPUP 1 -->
+<div id="popup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="popup-content" role="document">
+    <h2 id="popupTitle">⚠️ 18+ Warning</h2>
+    <p id="popupText">This content is for adults only. Click Continue to proceed.</p>
+    <div>
+      <a id="popupLink" class="btn" href="#" target="_blank" rel="noopener">CONTINUE →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const CONTINUE_URL = "https://heroptionssideway.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
+const FIRST_POPUP_DELAY = 15000;
+const REPEAT_INTERVAL = 15000;
+
+const popups = [
+  { title: "🔞 18+ Warning", text: "This content is for adults only." },
+  { title: "⚠️ Attention!", text: "You must be 18 years old or older to continue." },
+  { title: "🚀 Special Access", text: "Click Continue to unlock exclusive content." },
+  { title: "🔥 Trending Now", text: "Don’t miss out — trending content ahead." }
+];
+
+const popupEl = document.getElementById("popup");
+const popupTitle = document.getElementById("popupTitle");
+const popupText  = document.getElementById("popupText");
+const popupLink  = document.getElementById("popupLink");
+
+let nextTimer = null;
+
+function populatePopup() {
+  const p = popups[Math.floor(Math.random() * popups.length)];
+  popupTitle.textContent = p.title;
+  popupText.textContent  = p.text;
+  popupLink.href = CONTINUE_URL;
+}
+
+function showPopup() {
+  populatePopup();
+  popupEl.classList.add("visible");
+  popupEl.setAttribute("aria-hidden","false");
+}
+
+function hidePopup() {
+  popupEl.classList.remove("visible");
+  popupEl.setAttribute("aria-hidden","true");
+
+  if (nextTimer) clearTimeout(nextTimer);
+  nextTimer = setTimeout(showPopup, REPEAT_INTERVAL);
+}
+
+popupLink.addEventListener("click", hidePopup);
+
+nextTimer = setTimeout(showPopup, FIRST_POPUP_DELAY);
+</script>
+  <script type="text/javascript">
+
+var _Hasync=_Hasync||[];
+
+_Hasync.push(['Histats.start','1,4978236,4,0,0,0,00000000']);
+
+_Hasync.push(['Histats.fasi','1']);
+
+_Hasync.push(['Histats.track_hits','']);
+
+(function(){
+
+  var hs=document.createElement('script');hs.type='text/javascript';hs.async=true;
+
+  hs.src=('//s10.histats.com/js15_as.js');
+
+  (document.head||document.body).appendChild(hs);
+
+})();
+
+</script>
+
+<noscript><a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="hit counter" border="0"></a>
+
+  </noscript>
+
+ 
+
+</body>
+</html>
