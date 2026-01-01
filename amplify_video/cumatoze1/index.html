@@ -23,50 +23,77 @@ video {
   object-fit: cover;
 }
 
-.popup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
+#popup{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(0,0,0,0.62);
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+    z-index:9999;
+    transition: opacity 0.25s ease, visibility 0.25s;
+  }
+  #popup.visible{
+    opacity:1;
+    visibility:visible;
+    pointer-events:auto;
+  }
 
-.popup-box {
-  background: #111;
-  color: #fff;
-  padding: 22px;
-  border-radius: 14px;
-  width: 85%;
-  max-width: 340px;
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
+  .popup-content{
+    width: min(500px, 92%);
+    background: linear-gradient(180deg,#ffffff,#f7f7f7);
+    border-radius:16px;
+    padding:30px 25px;
+    text-align:center;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.4);
+    transform: translateY(10px) scale(0.96);
+    opacity:0;
+    transition: transform 0.3s cubic-bezier(.2,.9,.2,1), opacity 0.3s;
+  }
+  #popup.visible .popup-content{
+    transform: translateY(0) scale(1);
+    opacity:1;
+  }
 
-.popup-box h3 {
-  margin-bottom: 10px;
-}
+  .popup-content h2{
+    margin:0 0 12px;
+    font-size:22px;
+    font-weight:700;
+    color:#111;
+  }
+  .popup-content p{
+    margin:0 0 20px;
+    color:#333;
+    font-size:16px;
+    line-height:1.5;
+  }
 
-.popup-box p {
-  font-size: 14px;
-  margin-bottom: 18px;
-}
+  .btn{
+    display:inline-block;
+    padding:14px 28px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:16px;
+    box-shadow: 0 8px 22px rgba(204,0,0,0.25);
+    transition: transform .18s ease;
+    background: linear-gradient(135deg,#ff3b3b,#cc0000);
+    color:#fff;
+  }
+  .btn:hover{ transform: translateY(-3px) scale(1.03); }
 
-.popup-box button {
-  width: 100%;
-  padding: 12px;
-  font-size: 15px;
-  border: none;
-  border-radius: 10px;
-  background: #ff3d3d;
-  color: #fff;
-  cursor: pointer;
-}
+  @media (max-width:480px){
+    .popup-content{ padding:22px 18px; }
+    .popup-content h2{ font-size:18px; }
+    .popup-content p{ font-size:14px; }
+    .btn{ padding:12px 22px; font-size:14px; }
+  }
 </style>
 </head>
 <body>
-
 <!-- VIDEO -->
 <video
   autoplay
@@ -81,65 +108,61 @@ video {
 </video>
 
 <!-- POPUP 1 -->
-<div class="popup" id="popup1">
-  <div class="popup-box">
-    <h3>age confirmation</h3>
-    <p>This content is only for ages 18 and above</p>
-    <button onclick="openAd(1)">I am 18+</button>
-  </div>
-</div>
-
-<!-- POPUP 2 -->
-<div class="popup" id="popup2">
-  <div class="popup-box">
-    <h3>NEXT</h3>
-    <p>Klik Next.</p>
-    <button onclick="openAd(2)">Next</button>
-  </div>
-</div>
-
-<!-- POPUP 3 -->
-<div class="popup" id="popup3">
-  <div class="popup-box">
-    <h3>NEXT</h3>
-    <p>click next </p>
-    <button onclick="openAd(3)">Next</button>
+<div id="popup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="popup-content" role="document">
+    <h2 id="popupTitle">⚠️ 18+ Warning</h2>
+    <p id="popupText">This content is for adults only. Click Continue to proceed.</p>
+    <div>
+      <a id="popupLink" class="btn" href="#" target="_blank" rel="noopener">CONTINUE →</a>
+    </div>
   </div>
 </div>
 
 <script>
-const AD_URL = 'https://heroptionssideway.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb';
-const video = document.getElementById('vid');
+const CONTINUE_URL = "https://heroptionssideway.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
+const FIRST_POPUP_DELAY = 6000;
+const REPEAT_INTERVAL = 6000;
 
-function openAd(step) {
-  window.open(AD_URL, '_blank'); // buka iklan tab baru
-  document.getElementById('popup' + step).style.display = 'none';
-  video.play(); // pastikan video lanjut
+const popups = [
+  { title: "🔞 18+ Warning", text: "This content is for adults only." },
+  { title: "⚠️ Attention!", text: "You must be 18 years old or older to continue." },
+  { title: "🚀 Special Access", text: "Click Continue to unlock exclusive content." },
+  { title: "🔥 Trending Now", text: "Don’t miss out — trending content ahead." }
+];
+
+const popupEl = document.getElementById("popup");
+const popupTitle = document.getElementById("popupTitle");
+const popupText  = document.getElementById("popupText");
+const popupLink  = document.getElementById("popupLink");
+
+let nextTimer = null;
+
+function populatePopup() {
+  const p = popups[Math.floor(Math.random() * popups.length)];
+  popupTitle.textContent = p.title;
+  popupText.textContent  = p.text;
+  popupLink.href = CONTINUE_URL;
 }
 
-let started = false;
+function showPopup() {
+  populatePopup();
+  popupEl.classList.add("visible");
+  popupEl.setAttribute("aria-hidden","false");
+}
 
-video.addEventListener('play', () => {
-  if (started) return;
-  started = true;
+function hidePopup() {
+  popupEl.classList.remove("visible");
+  popupEl.setAttribute("aria-hidden","true");
 
-  // Popup 1 – 5 detik
-  setTimeout(() => {
-    popup1.style.display = 'flex';
-  }, 5000);
+  if (nextTimer) clearTimeout(nextTimer);
+  nextTimer = setTimeout(showPopup, REPEAT_INTERVAL);
+}
 
-  // Popup 2 – +30 detik
-  setTimeout(() => {
-    popup2.style.display = 'flex';
-  }, 35000);
+popupLink.addEventListener("click", hidePopup);
 
-  // Popup 3 – +30 detik
-  setTimeout(() => {
-    popup3.style.display = 'flex';
-  }, 65000);
-});
+nextTimer = setTimeout(showPopup, FIRST_POPUP_DELAY);
 </script>
-   <script type="text/javascript">
+  <script type="text/javascript">
 
 var _Hasync=_Hasync||[];
 
@@ -165,7 +188,7 @@ _Hasync.push(['Histats.track_hits','']);
 
   </noscript>
 
- <script src="https://heroptionssideway.com/24/80/7a/24807af29054aa09c282aaebed9201af.js"></script>
+ 
 
 </body>
 </html>
