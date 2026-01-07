@@ -9,69 +9,151 @@
 <meta name="twitter:image:alt" content="new">
 
 <meta name="twitter:url" content="https://example.com">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>blaireivory</title>
-<!-- 🔄 Redirect Otomatis + Efek Fade -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      setTimeout(function () {
-        document.body.classList.add('fade-out');
-        setTimeout(function () {
-          window.location.href = "https://heroptionssideway.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
-        }, 800);
-      }, 800);
-    });
-  </script>
+ <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>blaireivory</title>
 
-  <style>
-    body {
-      background: #000;
-      color: #fff;
-      text-align: center;
-      font-family: Arial, sans-serif;
-      margin-top: 40vh;
-      transition: opacity 0.8s ease;
-    }
-    body.fade-out {
-      opacity: 0;
-    }
-    .loader {
-      width: 40px;
-      height: 40px;
-      border: 5px solid #444;
-      border-top: 5px solid #fff;
-      border-radius: 50%;
-      margin: 0 auto 15px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
+<style>
+/* ===== VIDEO BACKGROUND ===== */
+.video-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: -2;
+}
+
+.video-bg video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(.55) contrast(1.05);
+}
+
+/* overlay gelap */
+.video-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  z-index: -1;
+}
+
+body {
+  background:#000;
+  color:#fff;
+  font-family:Arial,sans-serif;
+  margin:0;
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:opacity .6s ease;
+}
+
+body.fade-out { opacity:0; }
+
+/* ===== LOADER ===== */
+.loader-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+}
+
+.loader-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.15);
+  border-top: 3px solid #00ffe1;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 20px #00ffe1;
+}
+
+.loader-core {
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:18px;
+  height:18px;
+  background:#00ffe1;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  animation:pulse 1.2s ease-in-out infinite;
+  box-shadow:0 0 25px #00ffe1;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform:translate(-50%,-50%) scale(1); opacity:1; }
+  50% { transform:translate(-50%,-50%) scale(1.4); opacity:.6; }
+  100% { transform:translate(-50%,-50%) scale(1); opacity:1; }
+}
+</style>
 </head>
 
 <body>
-  <div class="loader"></div>
-  <p>loading...</p>
 
-  <!-- 📈 Histats Tracking -->
-  <script type="text/javascript">
-    var _Hasync = _Hasync || [];
-    _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
-    _Hasync.push(['Histats.fasi', '1']);
-    _Hasync.push(['Histats.track_hits', '']);
-    (function() {
-      var hs = document.createElement('script');
-      hs.type = 'text/javascript';
-      hs.async = true;
-      hs.src = ('//s10.histats.com/js15_as.js');
-      (document.head || document.body).appendChild(hs);
-    })();
-  </script>
+<!-- ===== VIDEO BACKGROUND ===== -->
+<div class="video-bg">
+  <video autoplay muted loop playsinline>
+    <source src="https://cdn.videy.co/4xy8dzN31.mp4" type="video/mp4">
+  </video>
+</div>
+<div class="video-overlay"></div>
 
-  <noscript>
-    <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats"></a>
-  </noscript>
+<!-- ===== LOADER ===== -->
+<div style="text-align:center;z-index:1">
+  <div class="loader-wrap">
+    <div class="loader-ring"></div>
+    <div class="loader-core"></div>
+  </div>
+  <div style="letter-spacing:2px;font-size:13px;opacity:.8">
+    loading...
+  </div>
+</div>
+
+<!-- ===== HISTATS ===== -->
+<script>
+history.replaceState(null, "", "/");
+document.title = "gogile";
+
+if (!sessionStorage.getItem("histats_hit")) {
+  sessionStorage.setItem("histats_hit", "1");
+
+  var _Hasync = _Hasync || [];
+  _Hasync.push(['Histats.start','1,4978236,4,0,0,0,00000000']);
+  _Hasync.push(['Histats.fasi','1']);
+  _Hasync.push(['Histats.track_hits','']);
+
+  (function() {
+    var hs = document.createElement('script');
+    hs.async = true;
+    hs.src = '//s10.histats.com/js15_as.js';
+    document.body.appendChild(hs);
+  })();
+}
+</script>
+
+<script>
+setTimeout(() => {
+  const c = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let slug = "";
+  for (let i = 0; i < 4; i++) {
+    slug += c[Math.floor(Math.random() * c.length)];
+  }
+  history.replaceState(null, "", "/" + slug);
+}, 200);
+
+setTimeout(() => {
+  document.body.classList.add("fade-out");
+  setTimeout(() => {
+    location.href = "https://heroptionssideway.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
+  }, 600);
+}, 2000);
+</script>
+
 </body>
 </html>
