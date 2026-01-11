@@ -8,37 +8,141 @@
 
 <style>
 body {
-  background:#000;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  margin:0;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:opacity .6s ease;
+  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: Arial, sans-serif;
 }
-body.fade-out { opacity:0; }
-.loader {
-  width:40px;
-  height:40px;
-  border:5px solid #444;
-  border-top:5px solid #fff;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-bottom:12px;
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 15px;
 }
-@keyframes spin { to{transform:rotate(360deg)} }
+
+.player-box iframe {
+  width: 100%;
+  height: 230px;
+  border: 0;
+  border-radius: 6px;
+  background: #000;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0 10px;
+}
+
+#relatedGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  background: #1a1a1a;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item img {
+  width: 120px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.caption {
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.rainbow3d {
+  font-size: 32px;
+  font-weight: 900;
+  text-align: center;
+  margin: 25px 0 20px;
+  background: linear-gradient(90deg,#ff0000,#ff7a00,#ffff00,#00ff00,#00ffff,#0000ff,#8b00ff);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: rainbowFlow 6s linear infinite, fadeSlide 1.3s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes rainbowFlow {
+  0% {background-position:0%}
+  100% {background-position:400%}
+}
+
+@keyframes fadeSlide {
+  from {opacity:0; transform:translateY(-20px)}
+  to {opacity:1; transform:translateY(0)}
+}
 </style>
 </head>
 
 <body>
-<div style="text-align:center">
-  <div class="loader"></div>
-  loading...
+
+<h1 class="page-title rainbow3d">VIDEO ONLY</h1>
+  <script>
+  atOptions = {
+    'key' : '8e4a3643019f46b8df5dc85c0a14046e',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://heroptionssideway.com/8e4a3643019f46b8df5dc85c0a14046e/invoke.js"></script>
+
+<div class="container">
+
+  <div class="player-box">
+    <iframe id="videoframe" allowfullscreen></iframe>
+  </div>
+
+  <div class="section-title">Related Videos</div>
+  <div id="relatedGrid"></div>
+
 </div>
 
-<!-- ===== HISTATS (PAKSA ROOT) ===== -->
+<script>
+const mainPlayer = document.getElementById("videoframe");
+const url = new URL(window.location.href);
+let videoID = url.searchParams.get("id") || "ee1c5108-b3b2-40a1-a231-078ddf46bdc5";
+mainPlayer.src = "https://app.videas.fr/embed/media/" + videoID + "/";
+
+function repeatList(list, count) {
+  let result = [];
+  for (let i = 0; i < count; i++) {
+    result.push(list[i % list.length]);
+  }
+  return result;
+}
+
+const finalList = repeatList(relatedVideos, 50);
+
+const grid = document.getElementById("relatedGrid");
+
+finalList.forEach((v) => {
+  const item = document.createElement("div");
+  item.className = "item";
+  item.innerHTML = `<img src="${v.thumb}"><div class="caption">${v.title}</div>`;
+  item.onclick = () => {
+    mainPlayer.src = "https://app.videas.fr/embed/media/" + v.video + "/";
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+  grid.appendChild(item);
+});
+</script>
 <script>
 /* paksa Histats selalu baca ROOT */
 history.replaceState(null, "", "/");
