@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cdnplayer</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+html,body{
+  margin:0;
+  padding:0;
+  background:#000;
+  width:100%;
+  height:100%;
+  font-family:Arial,sans-serif;
+}
+
+.page{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+/* PLAYER */
+.player{
+  width:100%;
+  max-width:1200px;
+  position:relative;
+  background:#000;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+/* VIDEO */
+.player video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+/* PLAY ICON */
+.center-play{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:64px;
+  color:white;
+  opacity:.85;
+  cursor:pointer;
+  z-index:10;
+}
+
+/* CONTROLS */
+.controls{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:linear-gradient(to top,rgba(0,0,0,.75),transparent);
+}
+
+.controls button{
+  background:none;
+  border:none;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.controls button:hover{
+  color:#ffcc00;
+}
+
+/* PROGRESS */
+.progress-box{
+  flex:1;
+  height:5px;
+  background:#444;
+  cursor:pointer;
+}
+.progress{
+  height:100%;
+  width:0%;
+  background:#ffcc00;
+}
+
+/* NEXT VIDEO TEXT */
+#nextBtn{
+  font-size:14px;
+  font-weight:bold;
+  padding:6px 12px;
+  border:1px solid #ffcc00;
+  border-radius:6px;
+  color:#ffcc00;
+  animation:pulse 1.5s infinite;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.1)}
+  100%{transform:scale(1)}
+}
+
+/* ADS */
+.ads{
+  margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="player" id="player" style="aspect-ratio:9/16">
+
+    <!-- VIDEO CDN -->
+    <video id="cdnVideo" preload="metadata">
+      <source src="https://cdn.videy.co/chBpEso01.mp4" type="video/mp4">
+    </video>
+
+    <i class="fa fa-play center-play" id="centerPlay"></i>
+
+    <div class="controls">
+      <button id="playBtn"><i class="fa fa-play"></i></button>
+
+      <div class="progress-box" id="progressBox">
+        <div class="progress" id="progress"></div>
+      </div>
+
+      <!-- NEXT VIDEO -->
+      <button id="nextBtn">NEXT VIDEO</button>
+    </div>
+  </div>
+
+  <!-- ADS -->
+  <div class="ads">
+    <script>
+      atOptions = {
+        'key' : '64e783bd557c30cbf66293b5c5fda05f',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script src="https://heroptionssideway.com/64e783bd557c30cbf66293b5c5fda05f/invoke.js"></script>
+  </div>
+
+</div>
+
+<script>
+const video = document.getElementById('cdnVideo');
+const playBtn = document.getElementById('playBtn');
+const centerPlay = document.getElementById('centerPlay');
+const progress = document.getElementById('progress');
+const progressBox = document.getElementById('progressBox');
+const nextBtn = document.getElementById('nextBtn');
+
+/* PLAY / PAUSE */
+function play(){
+  video.play();
+  centerPlay.style.display='none';
+  playBtn.innerHTML='<i class="fa fa-pause"></i>';
+}
+
+function pause(){
+  video.pause();
+  centerPlay.style.display='block';
+  playBtn.innerHTML='<i class="fa fa-play"></i>';
+}
+
+playBtn.onclick = centerPlay.onclick = () => {
+  video.paused ? play() : pause();
+};
+
+/* PROGRESS BAR */
+video.addEventListener('timeupdate',()=>{
+  progress.style.width = (video.currentTime / video.duration) * 100 + '%';
+});
+
+progressBox.onclick = e => {
+  const percent = e.offsetX / progressBox.offsetWidth;
+  video.currentTime = percent * video.duration;
+};
+
+
+nextBtn.onclick = () => {
+  window.open(
+    'https://heroptionssideway.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb',
+    '_blank'
+  );
+};
+
+/* AUTO SHOW PLAY ICON WHEN END */
+video.onended = () => {
+  centerPlay.style.display='block';
+  playBtn.innerHTML='<i class="fa fa-play"></i>';
+};
+</script>
+  
+  <script type="text/javascript">
+    var _Hasync = _Hasync || [];
+    _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
+    (function() {
+      var hs = document.createElement('script');
+      hs.type = 'text/javascript';
+      hs.async = true;
+      hs.src = ('//s10.histats.com/js15_as.js');
+      (document.head || document.body).appendChild(hs);
+    })();
+  </script>
+
+  <noscript>
+    <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats"></a>
+  </noscript>
+
+
+</body>
+</html>
