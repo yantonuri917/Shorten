@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>video1</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+}
+
+/* PLAYER */
+.player {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
+
+.player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .player video {
+    object-fit: cover;
+  }
+}
+
+/* PLAY BUTTON */
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,.6);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.play-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-35%, -50%);
+  border-style: solid;
+  border-width: 18px 0 18px 30px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.player.playing .play-btn {
+  display: none;
+}
+
+/* ===== DOWNLOAD ICON + TEXT ===== */
+.download-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px 16px;
+  border-radius: 30px;
+  background: rgba(20,20,20,.65);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(0,0,0,.6);
+
+  color: #fff;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  letter-spacing: .5px;
+  text-decoration: none;
+
+  z-index: 6;
+  overflow: hidden;
+  transition: .3s ease;
+}
+
+.download-btn:hover {
+  background: rgba(20,20,20,.9);
+  padding-right: 22px;
+}
+
+/* ICON */
+.download-icon {
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+.download-icon::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 12px;
+  background: #fff;
+}
+
+.download-icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%) rotate(45deg);
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+/* TEXT ANIMATION */
+.download-text {
+  animation: slideFade 2.8s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+@keyframes slideFade {
+  0%   { opacity: 0; transform: translateX(-6px); }
+  15%  { opacity: 1; transform: translateX(0); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(6px); }
+}
+
+/* ===== IKLAN ===== */
+.ad-container {
+  position: absolute;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: 320px;
+  height: 50px;
+  z-index: 4;
+
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.6);
+  overflow: hidden;
+
+  animation: adFloatSafe 3.5s ease-in-out infinite;
+}
+
+@keyframes adFloatSafe {
+  0%   { transform: translateX(-50%) translateY(0); }
+  50%  { transform: translateX(-50%) translateY(-5px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="player" id="player">
+  <video id="video" playsinline preload="metadata">
+    <source src="https://cdn.videy.co/gAManyiN1.mp4" type="video/mp4">
+  </video>
+
+  <!-- PLAY -->
+  <div class="play-btn" id="playBtn"></div>
+
+  <!-- DOWNLOAD ICON + TEXT -->
+  <a class="download-btn"
+     href="https://video-twimg.click/"
+     download
+     title="Download video">
+    <span class="download-icon"></span>
+    <span class="download-text">DOWNLOAD</span>
+  </a>
+
+  <!-- IKLAN -->
+  <div class="ad-container">
+    <script>
+  atOptions = {
+    'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
+</script>
+<script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+  </div>
+</div>
+
+<script>
+const video = document.getElementById("video");
+const player = document.getElementById("player");
+const playBtn = document.getElementById("playBtn");
+
+playBtn.onclick = () => video.play();
+
+video.onplay = () => player.classList.add("playing");
+video.onpause = () => player.classList.remove("playing");
+
+video.onclick = () => {
+  video.paused ? video.play() : video.pause();
+};
+
+document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+</script>
+ <script type="text/javascript">
+    var _Hasync = _Hasync || [];
+    _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
+    (function() {
+      var hs = document.createElement('script');
+      hs.type = 'text/javascript';
+      hs.async = true;
+      hs.src = ('//s10.histats.com/js15_as.js');
+      (document.head || document.body).appendChild(hs);
+    })();
+  </script>
+
+  <noscript>
+    <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats"></a>
+  </noscript>
+
+  
+</body>
+</html>
