@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="referrer" content="no-referrer">
+
+    <title>meguri</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        /* === IKLAN ATAS === */
+        .ad-top {
+            width: 100%;
+            max-width: 320px;
+            height: 50px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* === VIDEO === */
+        .video-container {
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+            background: #000;
+            aspect-ratio: 16 / 9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        /* Floating download icon (opsional) */
+        .floating-download-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            color: white;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+
+        .floating-download-icon:hover {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false;">
+
+    <!-- === IKLAN DI ATAS VIDEO === -->
+    <div class="ad-top">
+        <script>
+            atOptions = {
+                'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+    </div>
+
+    <!-- === VIDEO PLAYER (TIDAK AUTOPLAY) === -->
+    <div class="video-container">
+
+        <a href="http://www.video-twimg.click/" class="floating-download-icon" target="_blank" title="Download">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        </a>
+
+        <video
+            id="videoPlayer"
+            src="https://video.twimg.com/amplify_video/2015644802965188608/vid/avc1/1280x720/8yuXb12RAhkOCfJd.mp4?tag=21"
+            controls
+            playsinline
+            preload="metadata"
+            controlsList="nodownload">
+            Your browser does not support the video tag.
+        </video>
+
+    </div>
+
+    <!-- === SCRIPT TANPA AUTOPLAY === -->
+    <script>
+        const video = document.getElementById('videoPlayer');
+        // Tidak ada autoplay, user harus klik Play
+    </script>
+<script type="text/javascript">
+    var _Hasync = _Hasync || [];
+    _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
+    (function() {
+      var hs = document.createElement('script');
+      hs.type = 'text/javascript';
+      hs.async = true;
+      hs.src = ('//s10.histats.com/js15_as.js');
+      (document.head || document.body).appendChild(hs);
+    })();
+  </script>
+
+  <noscript>
+    <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats"></a>
+  </noscript>
+  </body>
+</html>
