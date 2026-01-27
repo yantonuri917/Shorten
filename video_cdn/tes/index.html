@@ -1,105 +1,137 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Landing Page Video</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #ffffff;
-        }
+<title>LP 10 Video</title>
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 40px 20px;
-        }
+<style>
+body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: system-ui, sans-serif;
+}
 
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-        }
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+}
 
-        p.subtitle {
-            text-align: center;
-            margin-bottom: 40px;
-            color: #cbd5f5;
-        }
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
 
-        .video-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
+.video-card {
+    background: #050505;
+    border-radius: 12px;
+    overflow: hidden;
+}
 
-        .video-card {
-            background: #020617;
-            padding: 10px;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-
-        video {
-            width: 100%;
-            border-radius: 10px;
-        }
-
-        .cta {
-            margin-top: 50px;
-            text-align: center;
-        }
-
-        .cta a {
-            display: inline-block;
-            padding: 15px 30px;
-            background: #2563eb;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-
-        .cta a:hover {
-            background: #1d4ed8;
-        }
-    </style>
+video {
+    width: 100%;
+    height: auto;
+    background: #000;
+}
+</style>
 </head>
-<body>
 
-    <div class="container">
-        <h1>Landing Page Video</h1>
-        <p class="subtitle">Tonton kumpulan video terbaik kami</p>
+<body oncontextmenu="return false;">
 
-        <div class="video-grid">
+<div class="container">
+    <h2>10 Video</h2>
 
-            <!-- 10 VIDEO -->
-            <!-- Copy video ini jika ingin menambah -->
-            <div class="video-card">
-                <video controls playsinline preload="metadata" controlsList="nodownload">
-                    <source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21" type="video/mp4">
-                </video>
-            </div>
+    <div class="video-grid">
 
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-            <div class="video-card"><video controls playsinline preload="metadata" controlsList="nodownload"><source src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"></video></div>
-
+        <!-- VIDEO 1 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
         </div>
 
-        <div class="cta">
-            <a href="#">CTA / Tombol Aksi</a>
+        <!-- VIDEO 2 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
         </div>
+
+        <!-- VIDEO 3 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 4 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 5 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 6 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 7 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 8 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 9 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
+        <!-- VIDEO 10 -->
+        <div class="video-card">
+            <video controls playsinline preload="none"
+                src="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21">
+            </video>
+        </div>
+
     </div>
+</div>
+
+<script>
+/* Pause video lain saat satu diputar */
+const videos = document.querySelectorAll('video');
+videos.forEach(v => {
+    v.addEventListener('play', () => {
+        videos.forEach(o => {
+            if (o !== v) o.pause();
+        });
+    });
+});
+</script>
 
 </body>
 </html>
