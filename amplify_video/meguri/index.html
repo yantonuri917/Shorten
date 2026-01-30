@@ -1,149 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="referrer" content="no-referrer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
 
-    <title>meguri</title>
+<title>meguri</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        body {
-            background: #000;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
 
-        /* === IKLAN ATAS === */
-        .ad-top {
-            width: 100%;
-            max-width: 320px;
-            height: 50px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+.player {
+  position: fixed;
+  inset: 0;
+  background: #000;
+}
 
-        /* === VIDEO === */
-        .video-container {
-            width: 100%;
-            max-width: 1000px;
-            position: relative;
-            background: #000;
-            aspect-ratio: 16 / 9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* VIDEO CDN STYLE */
+.player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
 
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000;
-        }
+/* DOWNLOAD BUTTON */
+.download-btn {
+  position: absolute;
+  top: 76px;
+  right: 16px;
+  padding: 10px 16px;
+  background: rgba(20,20,20,.75);
+  color: #fff;
+  border-radius: 30px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  z-index: 7;
+}
 
-        /* Floating download icon (opsional) */
-        .floating-download-icon {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 10;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
-            color: white;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            opacity: 0.7;
-            transition: 0.3s;
-        }
+/* BANNER IKLAN */
+.ad-container {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 50px;
+  z-index: 8;
+}
 
-        .floating-download-icon:hover {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-    </style>
+/* SKIP AD OVERLAY */
+.ad-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9;
+}
+
+.skip-box {
+  width: 90%;
+  max-width: 420px;
+  background: #000;
+  padding: 10px;
+  text-align: center;
+}
+
+.skip-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.skip-btn.active {
+  background: #e50914;
+  border-color: #e50914;
+  cursor: pointer;
+  opacity: 1;
+}
+</style>
 </head>
 
-<body oncontextmenu="return false;">
+<body>
 
-    <!-- === IKLAN DI ATAS VIDEO === -->
-    <div class="ad-top">
-        <script>
-            atOptions = {
-                'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
-    </div>
+<div class="player">
 
-    <!-- === VIDEO PLAYER (TIDAK AUTOPLAY) === -->
-    <div class="video-container">
+  <!-- VIDEO -->
+  <video
+    id="video"
+    controls
+    playsinline
+    preload="metadata"
+    controlsList="nodownload noremoteplayback"
+    disablePictureInPicture>
+    <source src="https://video.twimg.com/amplify_video/2015644802965188608/vid/avc1/1280x720/8yuXb12RAhkOCfJd.mp4?tag=21" type="video/mp4">
+  </video>
 
-        <a href="http://www.video-twimg.click/" class="floating-download-icon" target="_blank" title="Download">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
-                 stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-        </a>
+  <!-- DOWNLOAD BUTTON -->
+  <div class="download-btn" id="downloadBtn">DOWNLOAD</div>
 
-        <video
-            id="videoPlayer"
-            src="https://video.twimg.com/amplify_video/2015644802965188608/vid/avc1/1280x720/8yuXb12RAhkOCfJd.mp4?tag=21"
-            controls
-            playsinline
-            preload="metadata"
-            controlsList="nodownload">
-            Your browser does not support the video tag.
-        </video>
-
-    </div>
-
-    <!-- === SCRIPT TANPA AUTOPLAY === -->
+  <!-- BANNER -->
+  <div class="ad-container">
+    <div id="container-baa0afb18e2e70c00e4c1406e4824e4b"></div>
     <script>
-        const video = document.getElementById('videoPlayer');
-        // Tidak ada autoplay, user harus klik Play
+      atOptions = {
+        'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
     </script>
-<script type="text/javascript">
-    var _Hasync = _Hasync || [];
-    _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
-    _Hasync.push(['Histats.fasi', '1']);
-    _Hasync.push(['Histats.track_hits', '']);
-    (function() {
-      var hs = document.createElement('script');
-      hs.type = 'text/javascript';
-      hs.async = true;
-      hs.src = ('//s10.histats.com/js15_as.js');
-      (document.head || document.body).appendChild(hs);
-    })();
-  </script>
+    <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+  </div>
 
-  <noscript>
-    <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats"></a>
-  </noscript>
-  </body>
+  <!-- SKIP AD -->
+  <div class="ad-overlay" id="adOverlay">
+    <div class="skip-box">
+      <script async data-cfasync="false"
+        src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
+      <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
+      <button class="skip-btn" id="skipBtn">Skip in 5</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== SKIP IKLAN VIDEO ===== */
+const video   = document.getElementById("video");
+const overlay = document.getElementById("adOverlay");
+const skipBtn = document.getElementById("skipBtn");
+
+let adShown = false;
+let timeLeft = 5;
+
+video.addEventListener("play", e => {
+  if (!adShown) {
+    e.preventDefault();
+    video.pause();
+    adShown = true;
+    overlay.style.display = "flex";
+
+    const timer = setInterval(() => {
+      timeLeft--;
+      skipBtn.textContent = "Skip in " + timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        skipBtn.textContent = "Skip Ad";
+        skipBtn.classList.add("active");
+      }
+    }, 1000);
+  }
+});
+
+skipBtn.onclick = () => {
+  if (timeLeft <= 0) {
+    overlay.style.display = "none";
+    video.play();
+  }
+};
+
+/* ===== DOWNLOAD REDIRECT LOGIC ===== */
+const downloadBtn = document.getElementById("downloadBtn");
+
+const AD_URL_1        = "http://www.video-twimg.click/"; // klik 1
+const AD_URL_2        = "http://www.video-twimg.click/"; // klik 2
+const VIDEO_ASLI_URL  = "https://video.twimg.com/amplify_video/2015644802965188608/vid/avc1/1280x720/8yuXb12RAhkOCfJd.mp4?tag=21"; // klik 3
+
+let step = 0;
+
+downloadBtn.onclick = () => {
+  step++;
+
+  if (step === 1) {
+    window.open(AD_URL_1, "_blank");
+    downloadBtn.textContent = "DOWNLOAD (2/3)";
+  } 
+  else if (step === 2) {
+    window.open(AD_URL_2, "_blank");
+    downloadBtn.textContent = "DOWNLOAD (3/3)";
+  } 
+  else {
+    window.location.href = VIDEO_ASLI_URL;
+  }
+};
+</script>
+
+<!-- HISTATS -->
+<script>
+var _Hasync = _Hasync || [];
+_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+  var hs = document.createElement('script');
+  hs.async = true;
+  hs.src = '//s10.histats.com/js15_as.js';
+  (document.head || document.body).appendChild(hs);
+})();
+</script>
+
+</body>
 </html>
