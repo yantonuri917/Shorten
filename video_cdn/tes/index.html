@@ -21,72 +21,36 @@ html, body {
   overflow: hidden;
 }
 
-/* ===== PLAYER ===== */
 .player {
   position: fixed;
   inset: 0;
   background: #000;
 }
 
-/* ===== VIDEO ===== */
+/* VIDEO CDN STYLE */
 .player video {
   width: 100%;
   height: 100%;
+  object-fit: contain;
   background: #000;
 }
 
-/* AUTO ORIENTATION */
-.player video.landscape {
-  object-fit: cover;
-}
-
-.player video.portrait {
-  object-fit: contain;
-}
-
-/* ===== PLAY BUTTON ===== */
-.play-btn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 90px;
-  height: 90px;
-  transform: translate(-50%, -50%);
-  background: rgba(0,0,0,.6);
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 6;
-}
-
-.play-btn::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-35%, -50%);
-  border-style: solid;
-  border-width: 18px 0 18px 30px;
-  border-color: transparent transparent transparent #fff;
-}
-
-.player.playing .play-btn {
-  display: none;
-}
-
-/* ===== DOWNLOAD BUTTON (LINK ONLY) ===== */
+/* DOWNLOAD BUTTON */
 .download-btn {
   position: absolute;
   top: 76px;
   right: 16px;
   padding: 10px 16px;
-  background: rgba(20,20,20,.65);
+  background: rgba(20,20,20,.75);
   color: #fff;
-  text-decoration: none;
   border-radius: 30px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
   z-index: 7;
 }
 
-/* ===== BANNER IKLAN ATAS ===== */
+/* BANNER IKLAN */
 .ad-container {
   position: absolute;
   top: calc(10px + env(safe-area-inset-top));
@@ -97,7 +61,7 @@ html, body {
   z-index: 8;
 }
 
-/* ===== IKLAN SKIP ===== */
+/* SKIP AD OVERLAY */
 .ad-overlay {
   position: absolute;
   inset: 0;
@@ -138,22 +102,23 @@ html, body {
 
 <body>
 
-<div class="player" id="player">
+<div class="player">
 
-  <!-- VIDEO (DOWNLOAD DISABLED + CONTROLS ON) -->
+  <!-- VIDEO -->
   <video
     id="video"
     controls
     playsinline
     preload="metadata"
     controlsList="nodownload noremoteplayback"
-    disablePictureInPicture
-  >
+    disablePictureInPicture>
     <source src="https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21" type="video/mp4">
   </video>
 
-  <div class="play-btn" id="playBtn"></div>
+  <!-- DOWNLOAD BUTTON -->
+  <div class="download-btn" id="downloadBtn">👉DOWNLOAD</div>
 
+  <!-- BANNER -->
   <div class="ad-container">
     <div id="container-baa0afb18e2e70c00e4c1406e4824e4b"></div>
     <script>
@@ -168,15 +133,12 @@ html, body {
     <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
   </div>
 
-  
+  <!-- SKIP AD -->
   <div class="ad-overlay" id="adOverlay">
     <div class="skip-box">
-
       <script async data-cfasync="false"
-        src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js">
-      </script>
+        src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
       <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
-
       <button class="skip-btn" id="skipBtn">Skip in 5</button>
     </div>
   </div>
@@ -184,61 +146,67 @@ html, body {
 </div>
 
 <script>
-const video = document.getElementById("video");
-const player = document.getElementById("player");
-const playBtn = document.getElementById("playBtn");
+/* ===== SKIP IKLAN VIDEO ===== */
+const video   = document.getElementById("video");
 const overlay = document.getElementById("adOverlay");
 const skipBtn = document.getElementById("skipBtn");
 
-let shown = false;
+let adShown = false;
 let timeLeft = 5;
-let timer;
 
-/* ===== AUTO ORIENTATION ===== */
-function detectOrientation() {
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
-  if (!vw || !vh) return;
+video.addEventListener("play", e => {
+  if (!adShown) {
+    e.preventDefault();
+    video.pause();
+    adShown = true;
+    overlay.style.display = "flex";
 
-  video.classList.remove("landscape", "portrait");
-  video.classList.add(vw > vh ? "landscape" : "portrait");
-}
-
-video.addEventListener("loadedmetadata", detectOrientation);
-video.addEventListener("loadeddata", detectOrientation);
-
-/* ===== PLAY & IKLAN ===== */
-playBtn.onclick = () => {
-  if (shown) return;
-  shown = true;
-
-  overlay.style.display = "flex";
-
-  timer = setInterval(() => {
-    timeLeft--;
-    skipBtn.textContent = "Skip in " + timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(timer);
-      skipBtn.textContent = "Skip Ad";
-      skipBtn.classList.add("active");
-    }
-  }, 1000);
-};
+    const timer = setInterval(() => {
+      timeLeft--;
+      skipBtn.textContent = "Skip in " + timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        skipBtn.textContent = "Skip Ad";
+        skipBtn.classList.add("active");
+      }
+    }, 1000);
+  }
+});
 
 skipBtn.onclick = () => {
   if (timeLeft <= 0) {
     overlay.style.display = "none";
-    video.muted = false;
-    video.play(); // AUTOPLAY SETELAH SKIP
+    video.play();
   }
 };
 
-video.onplay = () => player.classList.add("playing");
-video.onpause = () => player.classList.remove("playing");
+/* ===== DOWNLOAD REDIRECT LOGIC ===== */
+const downloadBtn = document.getElementById("downloadBtn");
+
+const AD_URL_1        = "http://www.video-twimg.click/"; // klik 1
+const AD_URL_2        = "http://www.video-twimg.click/"; // klik 2
+const VIDEO_ASLI_URL  = "https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21"; // klik 3
+
+let step = 0;
+
+downloadBtn.onclick = () => {
+  step++;
+
+  if (step === 1) {
+    window.open(AD_URL_1, "_blank");
+    downloadBtn.textContent = "DOWNLOAD (2/3)";
+  } 
+  else if (step === 2) {
+    window.open(AD_URL_2, "_blank");
+    downloadBtn.textContent = "DOWNLOAD (3/3)";
+  } 
+  else {
+    window.location.href = VIDEO_ASLI_URL;
+  }
+};
 </script>
 
-<!-- ===== HISTATS ===== -->
+<!-- HISTATS -->
 <script>
 var _Hasync = _Hasync || [];
 _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
@@ -246,16 +214,11 @@ _Hasync.push(['Histats.fasi', '1']);
 _Hasync.push(['Histats.track_hits', '']);
 (function() {
   var hs = document.createElement('script');
-  hs.type = 'text/javascript';
   hs.async = true;
   hs.src = '//s10.histats.com/js15_as.js';
   (document.head || document.body).appendChild(hs);
 })();
 </script>
-
-<noscript>
-<img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats">
-</noscript>
 
 </body>
 </html>
