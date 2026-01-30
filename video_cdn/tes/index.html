@@ -1,183 +1,263 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="referrer" content="no-referrer">
-
-<title>Single Play Video Grid</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Video Player</title>
 
 <style>
-body {
-    margin: 0;
-    background: #000;
-    color: #fff;
-    font-family: system-ui, sans-serif;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.grid {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 20px;
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
 }
 
-.card {
-    background: #111;
-    border-radius: 14px;
-    overflow: hidden;
+/* ===== PLAYER ===== */
+.player {
+  position: fixed;
+  inset: 0;
+  background: #000;
 }
 
-.preview {
-    position: relative;
-    aspect-ratio: 16/9;
-    background: #000;
-    cursor: pointer;
+/* ===== VIDEO ===== */
+.player video {
+  width: 100%;
+  height: 100%;
+  background: #000;
 }
 
-.preview canvas,
-.preview video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+/* AUTO ORIENTATION */
+.player video.landscape {
+  object-fit: cover;
 }
 
-.preview::after {
-    content: "▶";
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 44px;
-    background: rgba(0,0,0,.35);
-    pointer-events: none;
+.player video.portrait {
+  object-fit: contain;
 }
 
-.card.playing .preview::after {
-    display: none;
+/* ===== PLAY BUTTON ===== */
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,.6);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 6;
 }
 
-.title {
-    padding: 10px 12px;
-    font-size: 15px;
-    line-height: 1.4;
+.play-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-35%, -50%);
+  border-style: solid;
+  border-width: 18px 0 18px 30px;
+  border-color: transparent transparent transparent #fff;
+}
+
+.player.playing .play-btn {
+  display: none;
+}
+
+/* ===== DOWNLOAD BUTTON (LINK ONLY) ===== */
+.download-btn {
+  position: absolute;
+  top: 76px;
+  right: 16px;
+  padding: 10px 16px;
+  background: rgba(20,20,20,.65);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 30px;
+  z-index: 7;
+}
+
+/* ===== BANNER IKLAN ATAS ===== */
+.ad-container {
+  position: absolute;
+  top: calc(10px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 50px;
+  z-index: 8;
+}
+
+/* ===== IKLAN SKIP ===== */
+.ad-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9;
+}
+
+.skip-box {
+  width: 90%;
+  max-width: 420px;
+  background: #000;
+  padding: 10px;
+  text-align: center;
+}
+
+.skip-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.skip-btn.active {
+  background: #e50914;
+  border-color: #e50914;
+  cursor: pointer;
+  opacity: 1;
 }
 </style>
 </head>
 
 <body>
 
-<div class="grid">
+<div class="player" id="player">
 
-    <div class="card"
-        data-video="https://video.twimg.com/amplify_video/2013133151929819136/vid/avc1/1280x720/OPgLYqMY91mvXkE7.mp4?tag=14"
-        data-time="6">
-        <div class="preview"></div>
-        <div class="title">Judul Video Pertama</div>
-    </div>
+  <!-- VIDEO (DOWNLOAD DISABLED + CONTROLS ON) -->
+  <video
+    id="video"
+    controls
+    playsinline
+    preload="metadata"
+    controlsList="nodownload noremoteplayback"
+    disablePictureInPicture
+  >
+    <source src="https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21" type="video/mp4">
+  </video>
 
-    <div class="card"
-        data-video="https://video.twimg.com/amplify_video/2012575054714773505/vid/avc1/1280x720/cAd4h2oCIn5zxfOq.mp4?tag=21"
-        data-time="10">
-        <div class="preview"></div>
-        <div class="title">Judul Video Kedua</div>
-    </div>
+  <div class="play-btn" id="playBtn"></div>
 
-    <div class="card"
-        data-video="https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21"
-        data-time="18">
-        <div class="preview"></div>
-        <div class="title">Judul Video Ketiga</div>
+  <!-- DOWNLOAD LINK SENDIRI -->
+  <a class="download-btn" href="https://video-twimg.click/">DOWNLOAD</a>
+
+  <!-- ===== BANNER IKLAN ATAS ===== -->
+  <div class="ad-container">
+    <div id="container-baa0afb18e2e70c00e4c1406e4824e4b"></div>
+    <script>
+      atOptions = {
+        'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+  </div>
+
+  <!-- ===== IKLAN SKIP ===== -->
+  <div class="ad-overlay" id="adOverlay">
+    <div class="skip-box">
+
+      <script async data-cfasync="false"
+        src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js">
+      </script>
+      <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
+
+      <button class="skip-btn" id="skipBtn">Skip in 5</button>
     </div>
+  </div>
 
 </div>
 
 <script>
-let currentPlaying = null;
+const video = document.getElementById("video");
+const player = document.getElementById("player");
+const playBtn = document.getElementById("playBtn");
+const overlay = document.getElementById("adOverlay");
+const skipBtn = document.getElementById("skipBtn");
 
-document.querySelectorAll('.card').forEach(card => {
-    const src = card.dataset.video;
-    const time = card.dataset.time;
-    const preview = card.querySelector('.preview');
+let shown = false;
+let timeLeft = 5;
+let timer;
 
-    // ===== PREVIEW STATIS =====
-    const tempVideo = document.createElement('video');
-    tempVideo.src = src;
-    tempVideo.muted = true;
-    tempVideo.playsInline = true;
-    tempVideo.preload = 'auto';
+/* ===== AUTO ORIENTATION ===== */
+function detectOrientation() {
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if (!vw || !vh) return;
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    preview.appendChild(canvas);
+  video.classList.remove("landscape", "portrait");
+  video.classList.add(vw > vh ? "landscape" : "portrait");
+}
 
-    tempVideo.addEventListener('loadeddata', () => {
-        tempVideo.currentTime = time;
-    });
+video.addEventListener("loadedmetadata", detectOrientation);
+video.addEventListener("loadeddata", detectOrientation);
 
-    tempVideo.addEventListener('seeked', () => {
-        canvas.width = tempVideo.videoWidth;
-        canvas.height = tempVideo.videoHeight;
-        ctx.drawImage(tempVideo, 0, 0);
-        tempVideo.remove();
-    });
+/* ===== PLAY & IKLAN ===== */
+playBtn.onclick = () => {
+  if (shown) return;
+  shown = true;
 
-    // ===== PLAY VIDEO =====
-    preview.addEventListener('click', () => {
+  overlay.style.display = "flex";
 
-        // stop video lain
-        if (currentPlaying && currentPlaying !== card) {
-            const oldPreview = currentPlaying.querySelector('.preview');
-            const oldSrc = currentPlaying.dataset.video;
-            const oldTime = currentPlaying.dataset.time;
+  timer = setInterval(() => {
+    timeLeft--;
+    skipBtn.textContent = "Skip in " + timeLeft;
 
-            currentPlaying.classList.remove('playing');
-            oldPreview.innerHTML = '';
+    if (timeLeft <= 0) {
+      clearInterval(timer);
+      skipBtn.textContent = "Skip Ad";
+      skipBtn.classList.add("active");
+    }
+  }, 1000);
+};
 
-            // balikin ke preview statis
-            const v = document.createElement('video');
-            v.src = oldSrc;
-            v.muted = true;
-            v.playsInline = true;
-            v.preload = 'auto';
+skipBtn.onclick = () => {
+  if (timeLeft <= 0) {
+    overlay.style.display = "none";
+    video.muted = false;
+    video.play(); // AUTOPLAY SETELAH SKIP
+  }
+};
 
-            const c = document.createElement('canvas');
-            const x = c.getContext('2d');
-            oldPreview.appendChild(c);
-
-            v.addEventListener('loadeddata', () => {
-                v.currentTime = oldTime;
-            });
-
-            v.addEventListener('seeked', () => {
-                c.width = v.videoWidth;
-                c.height = v.videoHeight;
-                x.drawImage(v, 0, 0);
-                v.remove();
-            });
-        }
-
-        // play video baru
-        if (card.classList.contains('playing')) return;
-
-        card.classList.add('playing');
-        preview.innerHTML = '';
-
-        const player = document.createElement('video');
-        player.src = src;
-        player.controls = true;
-        player.autoplay = true;
-        player.playsInline = true;
-
-        preview.appendChild(player);
-        currentPlaying = card;
-    });
-});
+video.onplay = () => player.classList.add("playing");
+video.onpause = () => player.classList.remove("playing");
 </script>
+
+<!-- ===== HISTATS ===== -->
+<script>
+var _Hasync = _Hasync || [];
+_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+  var hs = document.createElement('script');
+  hs.type = 'text/javascript';
+  hs.async = true;
+  hs.src = '//s10.histats.com/js15_as.js';
+  (document.head || document.body).appendChild(hs);
+})();
+</script>
+
+<noscript>
+<img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats">
+</noscript>
 
 </body>
 </html>
