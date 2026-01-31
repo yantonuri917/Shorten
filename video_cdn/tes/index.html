@@ -8,94 +8,134 @@
 <title>Caribbeancom</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
 }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  background: #000;
-  overflow: hidden;
+/* PLAYER */
+.player{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
-.player {
-  position: fixed;
-  inset: 0;
-  background: #000;
+/* VIDEO */
+video{
+  max-width:100%;
+  max-height:100%;
+  background:#000;
+}
+video.landscape{
+  width:100%;
+  height:auto;
+  aspect-ratio:16/9;
+}
+video.portrait{
+  width:auto;
+  height:100%;
+  aspect-ratio:9/16;
 }
 
-/* VIDEO CDN STYLE */
-.player video {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #000;
+/* BANNER ATAS */
+.ad-container{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top));
+  left:50%;
+  transform:translateX(-50%);
+  width:320px;
+  height:50px;
+  z-index:10;
 }
 
 /* DOWNLOAD BUTTON */
-.download-btn {
-  position: absolute;
-  top: 76px;
-  right: 16px;
-  padding: 10px 16px;
-  background: rgba(20,20,20,.75);
-  color: #fff;
-  border-radius: 30px;
-  font-size: 14px;
-  cursor: pointer;
-  user-select: none;
-  z-index: 7;
+.download-btn{
+  position:absolute;
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  padding:14px 38px;
+  background:linear-gradient(135deg,#ff004c,#ff6a00);
+  color:#fff;
+  border-radius:40px;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:.5px;
+  cursor:pointer;
+  z-index:11;
+  overflow:hidden;
+  animation:pulse 2s infinite;
+  user-select:none;
 }
 
-/* BANNER IKLAN */
-.ad-container {
-  position: absolute;
-  top: calc(10px + env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
-  width: 320px;
-  height: 50px;
-  z-index: 8;
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(255,0,76,.6)}
+  70%{box-shadow:0 0 0 18px rgba(255,0,76,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,0,76,0)}
 }
 
-/* SKIP AD OVERLAY */
-.ad-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9;
+.download-btn.shake{
+  animation:shake .4s;
+}
+@keyframes shake{
+  0%{transform:translateX(-50%)}
+  25%{transform:translateX(-52%)}
+  50%{transform:translateX(-48%)}
+  75%{transform:translateX(-52%)}
+  100%{transform:translateX(-50%)}
 }
 
-.skip-box {
-  width: 90%;
-  max-width: 420px;
-  background: #000;
-  padding: 10px;
-  text-align: center;
+.download-btn.loading{
+  animation:none;
+  background:#222;
+  pointer-events:none;
+}
+.download-btn.loading span{display:none}
+.download-btn.loading::before{
+  content:"⬇ Downloading...";
 }
 
-.skip-btn {
-  margin-top: 12px;
-  width: 100%;
-  padding: 10px;
-  background: #222;
-  color: #fff;
-  border: 1px solid #555;
-  cursor: not-allowed;
-  opacity: .6;
+/* SKIP IKLAN */
+.ad-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:20;
 }
 
-.skip-btn.active {
-  background: #e50914;
-  border-color: #e50914;
-  cursor: pointer;
-  opacity: 1;
+.skip-box{
+  width:90%;
+  max-width:420px;
+  background:#000;
+  padding:10px;
+  text-align:center;
+}
+
+.skip-btn{
+  margin-top:12px;
+  width:100%;
+  padding:10px;
+  background:#222;
+  color:#fff;
+  border:1px solid #555;
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.skip-btn.active{
+  background:#e50914;
+  border-color:#e50914;
+  opacity:1;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -105,8 +145,9 @@ html, body {
 <div class="player">
 
   <!-- VIDEO -->
-  <video
-    id="video"
+  <video id="video"
+    autoplay
+    muted
     controls
     playsinline
     preload="metadata"
@@ -115,25 +156,27 @@ html, body {
     <source src="https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21" type="video/mp4">
   </video>
 
-  <!-- DOWNLOAD BUTTON -->
-  <div class="download-btn" id="downloadBtn">👉DOWNLOAD</div>
+  <!-- DOWNLOAD -->
+  <div class="download-btn" id="downloadBtn">
+    <span>DOWNLOAD</span>
+  </div>
 
   <!-- BANNER -->
   <div class="ad-container">
     <div id="container-baa0afb18e2e70c00e4c1406e4824e4b"></div>
     <script>
-      atOptions = {
-        'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
+      atOptions={
+        'key':'baa0afb18e2e70c00e4c1406e4824e4b',
+        'format':'iframe',
+        'width':320,
+        'height':50,
+        'params':{}
       };
     </script>
     <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
   </div>
 
-  <!-- SKIP AD -->
+  <!-- SKIP IKLAN -->
   <div class="ad-overlay" id="adOverlay">
     <div class="skip-box">
       <script async data-cfasync="false"
@@ -146,62 +189,68 @@ html, body {
 </div>
 
 <script>
-/* ===== SKIP IKLAN VIDEO ===== */
-const video   = document.getElementById("video");
+/* AUTO LANDSCAPE / PORTRAIT */
+const video = document.getElementById("video");
+video.addEventListener("loadedmetadata",()=>{
+  video.classList.remove("landscape","portrait");
+  video.videoWidth > video.videoHeight
+    ? video.classList.add("landscape")
+    : video.classList.add("portrait");
+});
+
+/* SKIP IKLAN */
 const overlay = document.getElementById("adOverlay");
 const skipBtn = document.getElementById("skipBtn");
 
-let adShown = false;
-let timeLeft = 5;
+let time = 5;
+video.pause();
 
-video.addEventListener("play", e => {
-  if (!adShown) {
-    e.preventDefault();
-    video.pause();
-    adShown = true;
-    overlay.style.display = "flex";
-
-    const timer = setInterval(() => {
-      timeLeft--;
-      skipBtn.textContent = "Skip in " + timeLeft;
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        skipBtn.textContent = "Skip Ad";
-        skipBtn.classList.add("active");
-      }
-    }, 1000);
+const timer = setInterval(()=>{
+  time--;
+  skipBtn.textContent="Skip in "+time;
+  if(time<=0){
+    clearInterval(timer);
+    skipBtn.textContent="Skip Ad";
+    skipBtn.classList.add("active");
   }
-});
+},1000);
 
-skipBtn.onclick = () => {
-  if (timeLeft <= 0) {
-    overlay.style.display = "none";
+skipBtn.onclick=()=>{
+  if(time<=0){
+    overlay.style.display="none";
+    video.muted=false;
     video.play();
   }
 };
 
-/* ===== DOWNLOAD REDIRECT LOGIC ===== */
+/* DOWNLOAD 3 KLIK + ANIMASI */
 const downloadBtn = document.getElementById("downloadBtn");
 
-const AD_URL_1        = "http://www.video-twimg.click/"; // klik 1
-const AD_URL_2        = "http://www.video-twimg.click/"; // klik 2
-const VIDEO_ASLI_URL  = "https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21"; // klik 3
+const AD1="http://www.video-twimg.click/";
+const AD2="http://www.video-twimg.click/";
 
-let step = 0;
+const DRIVE_DOWNLOAD=
+"https://drive.google.com/uc?export=download&id=1oP0PiKLiOZyZzMOMOv67WSwv7zeKiZS3";
 
-downloadBtn.onclick = () => {
+let step=0;
+
+downloadBtn.onclick=()=>{
   step++;
+  downloadBtn.classList.remove("shake");
 
-  if (step === 1) {
-    window.open(AD_URL_1, "_blank");
-    downloadBtn.textContent = "DOWNLOAD (2/3)";
-  } 
-  else if (step === 2) {
-    window.open(AD_URL_2, "_blank");
-    downloadBtn.textContent = "DOWNLOAD (3/3)";
-  } 
-  else {
-    window.location.href = VIDEO_ASLI_URL;
+  if(step===1){
+    window.open(AD1,"_blank");
+    downloadBtn.querySelector("span").textContent="DOWNLOAD (2/3)";
+    downloadBtn.classList.add("shake");
+  }else if(step===2){
+    window.open(AD2,"_blank");
+    downloadBtn.querySelector("span").textContent="DOWNLOAD (3/3)";
+    downloadBtn.classList.add("shake");
+  }else{
+    downloadBtn.classList.add("loading");
+    setTimeout(()=>{
+      window.location.href=DRIVE_DOWNLOAD;
+    },800);
   }
 };
 </script>
