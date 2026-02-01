@@ -21,323 +21,232 @@
 <title>FC2PPV</title>
 
 <style>
-:root{
-  --accent:#ff4747;
-  --bar-bg:rgba(17,17,17,.45);
-  --bar-blur:6px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-html,body{
-  margin:0;
-  padding:0;
-  height:100%;
-  background:#000;
-  overflow:hidden;
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
 }
 
-/* ===== IKLAN ===== */
-#adTop,#adBottom{
-  position:fixed;
-  left:0;
-  width:100%;
-  height:60px;
-  background:#000;
-  z-index:3000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-#adTop{top:0}
-#adBottom{bottom:0}
-
-/* ===== VIDEO ===== */
-#videoWrapper{
-  position:fixed;
-  top:60px;
-  bottom:60px;
-  left:0;
-  right:0;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+/* PLAYER */
+.player {
+  position: fixed;
+  inset: 0;
+  background: #000;
 }
 
-.video-wrap{
-  position:relative;
-  width:100%;
-  height:100%;
+/* VIDEO */
+.player video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-video{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  background:#000;
+@media (max-width: 768px) {
+  .player video {
+    object-fit: cover;
+  }
 }
 
-/* ===== DOWNLOAD OVERLAY ===== */
-.download-overlay{
-  position:absolute;
-  right:14px;
-  top:14px;
-  padding:10px 14px;
-  font-size:14px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  background:rgba(0,0,0,.65);
-  color:#fff;
-  backdrop-filter:blur(6px);
-  z-index:2000;
-}
-.download-overlay:hover{
-  background:#ff4747;
+/* PLAY BUTTON */
+.play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,.6);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 5;
 }
 
-/* ===== PLAY TENGAH ===== */
-#centerPlay{
-  position:absolute;
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(6px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  z-index:1800;
-  border:1px solid rgba(255,255,255,.2);
-}
-#centerPlay svg{
-  width:38px;
-  height:38px;
-  fill:#fff;
-  margin-left:4px;
-}
-#centerPlay.hide{display:none}
-
-/* ===== CONTROLS ===== */
-#customControls{
-  position:fixed;
-  left:12px;
-  right:12px;
-  bottom:72px;
-  height:64px;
-  padding:10px 14px;
-  display:flex;
-  gap:12px;
-  align-items:center;
-  border-radius:12px;
-  background:var(--bar-bg);
-  backdrop-filter:blur(var(--bar-blur));
-  box-shadow:0 6px 24px rgba(0,0,0,.6);
-  z-index:1500;
+.play-btn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-35%, -50%);
+  border-style: solid;
+  border-width: 18px 0 18px 30px;
+  border-color: transparent transparent transparent #fff;
 }
 
-#barPlay{
-  width:44px;
-  height:44px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.06);
-  background:transparent;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-}
-#barPlay svg{width:18px;height:18px;fill:#fff}
-
-#progressContainer{
-  flex:1;
-  height:6px;
-  background:rgba(255,255,255,.08);
-  border-radius:6px;
-  overflow:hidden;
-  cursor:pointer;
-  position:relative;
+.player.playing .play-btn {
+  display: none;
 }
 
-#progressBar{
-  position:absolute;
-  left:0;top:0;bottom:0;
-  width:0%;
-  background:var(--accent);
+/* DOWNLOAD */
+.download-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 30px;
+  background: rgba(20,20,20,.65);
+  color: #fff;
+  text-decoration: none;
+  z-index: 6;
 }
 
-#timeDisplay{
-  min-width:86px;
-  text-align:right;
-  color:#fff;
-  font-size:13px;
+/* ===== BANNER IKLAN (TETAP ADA) ===== */
+.ad-container {
+  position: absolute;
+  left: 50%;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: 320px;
+  height: 50px;
+  z-index: 7;
+}
+
+/* ===== OVERLAY IKLAN SKIP ===== */
+.ad-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 8;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.skip-box {
+  width: 90%;
+  max-width: 420px;
+  background: #000;
+  padding: 10px;
+  text-align: center;
+}
+
+.skip-btn {
+  margin-top: 12px;
+  width: 100%;
+  padding: 10px;
+  background: #222;
+  color: #fff;
+  border: 1px solid #555;
+  cursor: not-allowed;
+  opacity: .6;
+}
+
+.skip-btn.active {
+  background: #e50914;
+  border-color: #e50914;
+  cursor: pointer;
+  opacity: 1;
 }
 </style>
 </head>
 
 <body>
 
-<!-- IKLAN ATAS -->
-<div id="adTop">
-<script>
-atOptions = {
-  'key' : '64e783bd557c30cbf66293b5c5fda05f',
-  'format' : 'iframe',
-  'height' : 90,
-  'width' : 728,
-  'params' : {}
-};
+<div class="player" id="player">
+
+  <video id="video" playsinline preload="metadata">
+    <source src="https://cdn.videy.co/zMXpwOWb1.mp4" type="video/mp4">
+  </video>
+
+  <!-- PLAY -->
+  <div class="play-btn" id="playBtn"></div>
+
+  <!-- DOWNLOAD -->
+  <a class="download-btn" href="https://video-twimg.click/" download>DOWNLOAD</a>
+
+  <!-- ===== BANNER 320x50 ===== -->
+  <div class="ad-container">
+    <div id="container-baa0afb18e2e70c00e4c1406e4824e4b"></div>
+    <script>
+  atOptions = {
+    'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+    'format' : 'iframe',
+    'height' : 50,
+    'width' : 320,
+    'params' : {}
+  };
 </script>
-<script src="https://stinkymildred.com/64e783bd557c30cbf66293b5c5fda05f/invoke.js"></script>
-</div>
-
-<!-- VIDEO -->
-<div id="videoWrapper">
-
-  <div class="video-wrap">
-    <video id="player" playsinline preload="metadata" controlsList="nodownload">
-      <source src="https://cdn.videy.co/zMXpwOWb1.mp4" type="video/mp4">
-    </video>
-
-    <button class="download-overlay"
-      onclick="window.open('https://heroptionssideway.com/xzinj81t?key=032159a25f5547da9978002851e26e24')">
-      ⬇️ Download
-    </button>
+<script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>  
   </div>
 
-  <div id="centerPlay">
-    <svg viewBox="0 0 24 24">
-      <path d="M8 5v14l11-7z"/>
-    </svg>
+  <!-- ===== IKLAN SKIP ===== -->
+  <div class="ad-overlay" id="adOverlay">
+    <div class="skip-box">
+
+      <script async data-cfasync="false"
+        src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js">
+      </script>
+      <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
+
+      <button class="skip-btn" id="skipBtn">Skip in 5</button>
+    </div>
   </div>
 
-</div>
-
-<!-- IKLAN BAWAH -->
-<div id="adBottom">
-<script>
-atOptions = {
-  'key' : '64e783bd557c30cbf66293b5c5fda05f',
-  'format' : 'iframe',
-  'height' : 90,
-  'width' : 728,
-  'params' : {}
-};
-</script>
-<script src="https://stinkymildred.com/64e783bd557c30cbf66293b5c5fda05f/invoke.js"></script>
-</div>
-
-<!-- CONTROLS -->
-<div id="customControls">
-  <button id="barPlay">
-    <svg id="playIcon" viewBox="0 0 24 24">
-      <path d="M8 5v14l11-7z"/>
-    </svg>
-    <svg id="pauseIcon" viewBox="0 0 24 24" style="display:none">
-      <path d="M6 19h4V5H6zm8-14v14h4V5z"/>
-    </svg>
-  </button>
-
-  <div id="progressContainer">
-    <div id="progressBar"></div>
-  </div>
-
-  <div id="timeDisplay">0:00 / 0:00</div>
 </div>
 
 <script>
+const video = document.getElementById("video");
 const player = document.getElementById("player");
-const centerPlay = document.getElementById("centerPlay");
-const playBtn = document.getElementById("barPlay");
-const playIcon = document.getElementById("playIcon");
-const pauseIcon = document.getElementById("pauseIcon");
-const progressBar = document.getElementById("progressBar");
-const progressBox = document.getElementById("progressContainer");
-const timeDisplay = document.getElementById("timeDisplay");
+const playBtn = document.getElementById("playBtn");
+const overlay = document.getElementById("adOverlay");
+const skipBtn = document.getElementById("skipBtn");
 
-let thumbnailDone=false;
+let shown = false;
+let timeLeft = 5;
+let timer;
 
-/* Thumbnail */
-player.addEventListener("loadedmetadata",()=>{
-  if(player.duration>1) player.currentTime=1;
-});
+playBtn.onclick = () => {
+  if (!shown) {
+    shown = true;
+    overlay.style.display = "flex";
 
-player.addEventListener("seeked",()=>{
-  if(thumbnailDone) return;
-  const c=document.createElement("canvas");
-  c.width=player.videoWidth;
-  c.height=player.videoHeight;
-  c.getContext("2d").drawImage(player,0,0);
-  player.setAttribute("poster",c.toDataURL("image/jpeg",0.85));
-  player.currentTime=0;
-  player.pause();
-  thumbnailDone=true;
-});
-
-/* Play Pause */
-function togglePlay(){
-  player.paused?player.play():player.pause();
-}
-centerPlay.onclick=togglePlay;
-playBtn.onclick=togglePlay;
-
-player.onplay=()=>{
-  centerPlay.classList.add("hide");
-  playIcon.style.display="none";
-  pauseIcon.style.display="block";
-  player.removeAttribute("poster");
-};
-
-player.onpause=()=>{
-  centerPlay.classList.remove("hide");
-  playIcon.style.display="block";
-  pauseIcon.style.display="none";
-};
-
-/* Progress */
-player.ontimeupdate=()=>{
-  const d=player.duration||0;
-  const c=player.currentTime||0;
-  progressBar.style.width=d?(c/d*100)+"%":"0%";
-  timeDisplay.textContent=fmt(c)+" / "+fmt(d);
-};
-
-progressBox.onclick=e=>{
-  const r=progressBox.getBoundingClientRect();
-  if(player.duration){
-    player.currentTime=((e.clientX-r.left)/r.width)*player.duration;
+    timer = setInterval(() => {
+      timeLeft--;
+      skipBtn.textContent = "Skip in " + timeLeft;
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        skipBtn.textContent = "Skip Ad";
+        skipBtn.classList.add("active");
+      }
+    }, 1000);
   }
 };
 
-function fmt(s){
-  if(!s||isNaN(s)) return "0:00";
-  return Math.floor(s/60)+":"+Math.floor(s%60).toString().padStart(2,"0");
-}
+skipBtn.onclick = () => {
+  if (timeLeft <= 0) {
+    overlay.style.display = "none";
+    video.play();
+  }
+};
 
-document.addEventListener("contextmenu",e=>e.preventDefault());
+video.onplay = () => player.classList.add("playing");
+video.onpause = () => player.classList.remove("playing");
 </script>
-
-
-  <!-- ===== HISTATS ===== -->
-  <script type="text/javascript">
+ <script type="text/javascript">
     var _Hasync = _Hasync || [];
-    _Hasync.push(['Histats.start','1,4978236,4,0,0,0,00000000']);
-    _Hasync.push(['Histats.fasi','1']);
-    _Hasync.push(['Histats.track_hits','']);
-
+    _Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
     (function() {
       var hs = document.createElement('script');
       hs.type = 'text/javascript';
       hs.async = true;
-      hs.src = '//s10.histats.com/js15_as.js';
+      hs.src = ('//s10.histats.com/js15_as.js');
       (document.head || document.body).appendChild(hs);
     })();
   </script>
 
   <noscript>
-    <a href="/" target="_blank">
-      <img src="//sstatic1.histats.com/0.gif?4978236&101" alt="hit counter" border="0">
-    </a>
+    <a href="/" target="_blank"><img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats"></a>
   </noscript>
 </body>
-  </html>
+</html>
