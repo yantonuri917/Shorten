@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+
+<title>AI</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;
+  height:100%;
+  background:#000;
+  overflow:hidden;
+}
+
+/* PLAYER */
+.player{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* VIDEO */
+video{
+  max-width:100%;
+  max-height:100%;
+  background:#000;
+}
+video.landscape{
+  width:100%;
+  height:auto;
+  aspect-ratio:16/9;
+}
+video.portrait{
+  width:auto;
+  height:100%;
+  aspect-ratio:9/16;
+}
+
+/* BANNER ATAS */
+.ad-container{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top));
+  left:50%;
+  transform:translateX(-50%);
+  width:320px;
+  height:50px;
+  z-index:10;
+}
+
+/* DOWNLOAD BUTTON */
+.download-btn{
+  position:absolute;
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  left:50%;
+  transform:translateX(-50%);
+  padding:14px 38px;
+  background:linear-gradient(135deg,#ff004c,#ff6a00);
+  color:#fff;
+  border-radius:40px;
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:.5px;
+  cursor:pointer;
+  z-index:11;
+  overflow:hidden;
+  animation:pulse 2s infinite;
+  user-select:none;
+}
+
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(255,0,76,.6)}
+  70%{box-shadow:0 0 0 18px rgba(255,0,76,0)}
+  100%{box-shadow:0 0 0 0 rgba(255,0,76,0)}
+}
+
+.download-btn.shake{
+  animation:shake .4s;
+}
+@keyframes shake{
+  0%{transform:translateX(-50%)}
+  25%{transform:translateX(-52%)}
+  50%{transform:translateX(-48%)}
+  75%{transform:translateX(-52%)}
+  100%{transform:translateX(-50%)}
+}
+
+.download-btn.loading{
+  animation:none;
+  background:#222;
+  pointer-events:none;
+}
+.download-btn.loading span{display:none}
+.download-btn.loading::before{
+  content:"⬇ Downloading...";
+}
+
+/* SKIP IKLAN */
+.ad-overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:20;
+}
+
+.skip-box{
+  width:90%;
+  max-width:420px;
+  background:#000;
+  padding:10px;
+  text-align:center;
+}
+
+.skip-btn{
+  margin-top:12px;
+  width:100%;
+  padding:10px;
+  background:#222;
+  color:#fff;
+  border:1px solid #555;
+  opacity:.6;
+  cursor:not-allowed;
+}
+
+.skip-btn.active{
+  background:#e50914;
+  border-color:#e50914;
+  opacity:1;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="player">
+
+  <!-- VIDEO -->
+  <video id="video"
+    autoplay
+    muted
+    controls
+    playsinline
+    preload="metadata"
+    controlsList="nodownload noremoteplayback"
+    disablePictureInPicture>
+    <source src="https://cdn.videy.co/4KvKXCSg1.mp4" type="video/mp4">
+  </video>
+
+  <!-- DOWNLOAD -->
+  <div class="download-btn" id="downloadBtn">
+    <span>DOWNLOAD</span>
+  </div>
+
+  <!-- BANNER -->
+  <div class="ad-container">
+    <div id="container-baa0afb18e2e70c00e4c1406e4824e4b"></div>
+    <script>
+      atOptions={
+        'key':'baa0afb18e2e70c00e4c1406e4824e4b',
+        'format':'iframe',
+        'width':320,
+        'height':50,
+        'params':{}
+      };
+    </script>
+    <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+  </div>
+
+  <!-- SKIP IKLAN -->
+  <div class="ad-overlay" id="adOverlay">
+    <div class="skip-box">
+      <script async data-cfasync="false"
+        src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
+      <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
+      <button class="skip-btn" id="skipBtn">Skip in 5</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* AUTO LANDSCAPE / PORTRAIT */
+const video = document.getElementById("video");
+video.addEventListener("loadedmetadata",()=>{
+  video.classList.remove("landscape","portrait");
+  video.videoWidth > video.videoHeight
+    ? video.classList.add("landscape")
+    : video.classList.add("portrait");
+});
+
+/* SKIP IKLAN */
+const overlay = document.getElementById("adOverlay");
+const skipBtn = document.getElementById("skipBtn");
+
+let time = 5;
+video.pause();
+
+const timer = setInterval(()=>{
+  time--;
+  skipBtn.textContent="Skip in "+time;
+  if(time<=0){
+    clearInterval(timer);
+    skipBtn.textContent="Skip Ad";
+    skipBtn.classList.add("active");
+  }
+},1000);
+
+skipBtn.onclick=()=>{
+  if(time<=0){
+    overlay.style.display="none";
+    video.muted=false;
+    video.play();
+  }
+};
+
+/* DOWNLOAD 3 KLIK + ANIMASI */
+const downloadBtn = document.getElementById("downloadBtn");
+
+const AD1="http://www.video-twimg.click/";
+const AD2="http://www.video-twimg.click/";
+
+const DRIVE_DOWNLOAD=
+"https://drive.google.com/uc?export=download&id=1oP0PiKLiOZyZzMOMOv67WSwv7zeKiZS3";
+
+let step=0;
+
+downloadBtn.onclick=()=>{
+  step++;
+  downloadBtn.classList.remove("shake");
+
+  if(step===1){
+    window.open(AD1,"_blank");
+    downloadBtn.querySelector("span").textContent="DOWNLOAD (2/3)";
+    downloadBtn.classList.add("shake");
+  }else if(step===2){
+    window.open(AD2,"_blank");
+    downloadBtn.querySelector("span").textContent="DOWNLOAD (3/3)";
+    downloadBtn.classList.add("shake");
+  }else{
+    downloadBtn.classList.add("loading");
+    setTimeout(()=>{
+      window.location.href=DRIVE_DOWNLOAD;
+    },800);
+  }
+};
+</script>
+
+<!-- HISTATS -->
+<script>
+var _Hasync = _Hasync || [];
+_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+  var hs = document.createElement('script');
+  hs.async = true;
+  hs.src = '//s10.histats.com/js15_as.js';
+  (document.head || document.body).appendChild(hs);
+})();
+</script>
+
+</body>
+</html>
