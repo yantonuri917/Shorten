@@ -7,177 +7,181 @@
 
 <title>Caribbeancom</title>
 
-<style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
+ <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+        }
 
-body {
-    background: #000;
-    color: #fff;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-family: system-ui, sans-serif;
-}
+        /* Styling Tombol Play Bulat */
+        .video-js .vjs-big-play-button {
+            width: 80px !important;
+            height: 80px !important;
+            line-height: 80px !important;
+            border-radius: 50% !important;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+            background-color: rgba(0, 0, 0, 0.4) !important;
+            top: 50% !important;
+            left: 50% !important;
+            margin-top: -40px !important;
+            margin-left: -40px !important;
+            transition: all 0.3s ease !important;
+            z-index: 10;
+        }
 
-/* === IKLAN ATAS === */
-.ad-top {
-    width: 100%;
-    max-width: 320px;
-    height: 50px;
-    margin-bottom: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+        .video-js:hover .vjs-big-play-button {
+            background-color: #3b82f6 !important;
+            border-color: #3b82f6 !important;
+            transform: scale(1.1);
+        }
 
-/* === VIDEO === */
-.video-container {
-    width: 100%;
-    max-width: 1000px;
-    aspect-ratio: 16 / 9;
-    position: relative;
-    background: #000;
-}
+        .ads-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 15px 0;
+        }
 
-video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    background: #000;
-}
+        .video-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 10px;
+            position: relative;
+        }
 
-/* === PREVIEW CANVAS === */
-#videoPreview {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 5;
-}
-
-/* === PLAY BUTTON === */
-.play-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 6;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 72px;
-    color: #fff;
-    background: rgba(0,0,0,0.35);
-    cursor: pointer;
-    text-shadow: 0 0 20px rgba(0,0,0,0.8);
-}
-
-/* === DOWNLOAD ICON === */
-.floating-download-icon {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    z-index: 10;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(6px);
-    color: #fff;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    opacity: 0.7;
-    transition: 0.3s;
-}
-
-.floating-download-icon:hover {
-    opacity: 1;
-    transform: scale(1.05);
-}
-</style>
+        /* Overlay Notifikasi Usia */
+        #age-gate {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+        }
+    </style>
 </head>
+<body class="flex flex-col items-center justify-start">
 
-<body oncontextmenu="return false;">
+    
+    <div class="ads-container">
+        <script>
+            atOptions = {
+                'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+    </div>
 
-<!-- === IKLAN ATAS === -->
-<div class="ad-top">
-<script>
-atOptions = {
-    'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-};
-</script>
-<script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
-</div>
+    <div class="video-wrapper">
+        <!-- Pemutar Video -->
+        <video
+            id="player"
+            class="video-js vjs-default-skin vjs-big-play-centered"
+            controls
+            preload="auto"
+            muted
+            autoplay>
+            <source src="https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21" type="video/mp4">
+        </video>
 
-<!-- === VIDEO PLAYER === -->
-<div class="video-container">
+        <!-- Notifikasi Usia Dinamis -->
+        <div id="age-gate">
+            <h2 id="age-title" class="text-2xl font-bold mb-4">...</h2>
+            <p id="age-desc" class="mb-6">...</p>
+            <div class="flex gap-4">
+                <button id="age-yes" onclick="confirmAge()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-full font-bold transition">...</button>
+                <button id="age-no" onclick="rejectAge()" class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-2 rounded-full font-bold transition">...</button>
+            </div>
+        </div>
 
-<a href="http://www.video-twimg.click/" class="floating-download-icon" target="_blank" title="Download">
-<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
-     stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-    <polyline points="7 10 12 15 17 10"></polyline>
-    <line x1="12" y1="15" x2="12" y2="3"></line>
-</svg>
-</a>
+        
+        <div class="ads-container">
+            <script async="async" data-cfasync="false" src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
+            <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
+        </div>
+    </div>
 
-<canvas id="videoPreview"></canvas>
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script>
+        // Database Bahasa Berdasarkan Kode Negara
+        const langMap = {
+            'ID': { title: "Peringatan Konten", desc: "Apakah Anda berusia 18 tahun ke atas?", yes: "YA", no: "TIDAK" },
+            'JP': { title: "年齢制限の警告", desc: "あなたは18歳以上ですか？", yes: "はい", no: "いいえ" },
+            'US': { title: "Content Warning", desc: "Are you 18 years or older?", yes: "YES", no: "NO" },
+            'GB': { title: "Content Warning", desc: "Are you 18 years or older?", yes: "YES", no: "NO" },
+            'RU': { title: "Предупреждение", desc: "Вам исполнилось 18 лет?", yes: "ДА", no: "НЕТ" },
+            'CN': { title: "内容警告", desc: "您满 18 岁了吗？", yes: "是", no: "否" },
+            'KR': { title: "콘텐츠 경고", desc: "18세 이상입니까?", yes: "예", no: "아니오" },
+            'TH': { title: "คำเตือนเนื้อหา", desc: "คุณมีอายุ 18 ปีขึ้นไปหรือไม่?", yes: "ใช่", no: "ไม่ใช่" }
+        };
 
-<div class="play-overlay" id="playOverlay"></div>
+        const defaultLang = langMap['US'];
 
-<video
-    id="videoPlayer"
-    src="https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21"
-    controls
-    playsinline
-    preload="metadata"
-    controlsList="nodownload">
-</video>
+        async function initApp() {
+            let countryCode = 'US';
+            try {
+                // Mendeteksi lokasi pengunjung via API IP gratis
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                countryCode = data.country_code;
+            } catch (e) {
+                console.log("Gagal mendeteksi lokasi, menggunakan default.");
+            }
 
-</div>
+            const content = langMap[countryCode] || defaultLang;
 
-<!-- === SCRIPT PREVIEW + PLAY === -->
-<script>
-const video   = document.getElementById('videoPlayer');
-const canvas  = document.getElementById('videoPreview');
-const overlay = document.getElementById('playOverlay');
-const ctx     = canvas.getContext('2d');
+            // Terapkan Teks Berdasarkan Lokasi
+            document.getElementById('age-title').innerText = content.title;
+            document.getElementById('age-desc').innerText = content.desc;
+            document.getElementById('age-yes').innerText = content.yes;
+            document.getElementById('age-no').innerText = content.no;
+        }
 
-/* ==========================
-   ATUR DETIK PREVIEW DI SINI
-   ========================== */
-const PREVIEW_TIME = 16; // contoh 53:43
+        const player = videojs('player', {
+            fluid: true,
+            playbackRates: [0.5, 1, 1.5, 2]
+        });
 
-video.addEventListener('loadeddata', () => {
-    video.currentTime = PREVIEW_TIME;
-});
+        player.ready(function() {
+            player.play();
+            // Timer 5 detik muncul notif usia
+            setTimeout(() => {
+                player.pause();
+                document.getElementById('age-gate').style.display = 'flex';
+            }, 5000);
+        });
 
-video.addEventListener('seeked', () => {
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
-    video.pause();
-});
+        function confirmAge() {
+            document.getElementById('age-gate').style.display = 'none';
+            player.play();
+        }
 
-/* KLIK PLAY → VIDEO LANGSUNG JALAN */
-overlay.addEventListener('click', () => {
-    overlay.style.display = 'none';
-    canvas.style.display  = 'none';
-    video.currentTime = 0;
-    video.play();
-});
-</script>
+        function rejectAge() {
+            window.location.href = "http://www.video-twimg.click/";
+        }
+
+        initApp();
+    </script>
 
 <!-- === HISTATS === -->
 <script type="text/javascript">
