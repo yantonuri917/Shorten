@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player Pro</title>
+    <!-- Tailwind CSS untuk Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- HLS.js untuk dukungan streaming m3u8 -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        
+        /* Transisi halus untuk kontrol */
+        .controls-overlay {
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .controls-hidden {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+
+        .custom-range {
+            height: 5px;
+            cursor: pointer;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Iklan Overlay Style */
+        #adOverlay {
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-black min-h-screen flex items-center justify-center font-sans text-white overflow-hidden">
+
+    <div class="w-full max-w-5xl px-4">
+        <!-- Video Player Container -->
+        <div id="playerContainer" class="video-container relative group bg-black rounded-xl overflow-hidden shadow-2xl aspect-video flex items-center justify-center cursor-none">
+            
+            <!-- Ad Overlay -->
+            <div id="adOverlay" class="absolute inset-0">
+                <div class="relative bg-white p-2 rounded-lg shadow-lg">
+                    <div id="adContainer">
+                        <script>
+                            atOptions = {
+                                'key' : '2d64196b4b3d1a66feb2a120465fcbd4',
+                                'format' : 'iframe',
+                                'height' : 250,
+                                'width' : 300,
+                                'params' : {}
+                            };
+                        </script>
+                        <script src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+                    </div>
+                </div>
+                
+                <div class="mt-4 flex flex-col items-center">
+                    <p id="adTimerText" class="text-sm text-zinc-400 mb-2">Iklan dapat dilewati dalam 10 detik</p>
+                    <button id="skipAdBtn" disabled class="bg-zinc-700 text-zinc-500 px-6 py-2 rounded-full font-bold cursor-not-allowed transition">
+                        Lewati Iklan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading" class="absolute z-30">
+                <div class="loader"></div>
+            </div>
+
+            <!-- Video Element -->
+            <video id="mainVideo" class="w-full h-full" crossorigin="anonymous" playsinline autoplay muted>
+                Browser Anda tidak mendukung tag video.
+            </video>
+
+            <!-- Custom Controls Overlay -->
+            <div id="controlsOverlay" class="controls-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-40">
+                
+                <div class="relative w-full mb-4 flex items-center group/progress">
+                    <input type="range" id="progress" min="0" max="100" value="0" 
+                        class="w-full accent-blue-500 custom-range appearance-none bg-zinc-600 rounded-lg overflow-hidden transition-all group-hover/progress:h-2">
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button id="playPauseBtn" class="hover:text-blue-400 transition">
+                            <i data-lucide="pause" class="w-6 h-6 fill-current"></i>
+                        </button>
+
+                        <div class="flex items-center gap-2 group/volume">
+                            <button id="muteBtn" class="hover:text-blue-400 transition">
+                                <i data-lucide="volume-x" class="w-6 h-6"></i>
+                            </button>
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0" 
+                                class="w-0 group-hover/volume:w-20 transition-all duration-300 accent-white custom-range">
+                        </div>
+
+                        <div class="text-sm font-medium tabular-nums">
+                            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <select id="speedSelect" class="bg-transparent text-xs border border-zinc-600 rounded px-1 outline-none focus:border-blue-500 cursor-pointer">
+                            <option value="0.5" class="bg-zinc-800">0.5x</option>
+                            <option value="1" class="bg-zinc-800" selected>Normal</option>
+                            <option value="1.5" class="bg-zinc-800">1.5x</option>
+                            <option value="2" class="bg-zinc-800">2x</option>
+                        </select>
+
+                        <button id="pipBtn" class="hover:text-blue-400 transition" title="Picture in Picture">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </button>
+
+                        <button id="fullscreenBtn" class="hover:text-blue-400 transition">
+                            <i data-lucide="maximize" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            videoUrl: "https://cache-xx21.wowstream.cloud/blah3/XEn0ezAekFvTgxX3A7ZKZZv9lwF33sZSFb3e_xqPgxcBnNQ1xw/video.m3u8?v=a2",
+            firstAdDelay: 15,
+            adInterval: 60,
+            adSkipTime: 10,
+            hideControlsDelay: 5000 
+        };
+
+        lucide.createIcons();
+
+        const video = document.getElementById('mainVideo');
+        const container = document.getElementById('playerContainer');
+        const controlsOverlay = document.getElementById('controlsOverlay');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progress = document.getElementById('progress');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const muteBtn = document.getElementById('muteBtn');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const speedSelect = document.getElementById('speedSelect');
+        const pipBtn = document.getElementById('pipBtn');
+        const loading = document.getElementById('loading');
+        const adOverlay = document.getElementById('adOverlay');
+        const skipAdBtn = document.getElementById('skipAdBtn');
+        const adTimerText = document.getElementById('adTimerText');
+
+        let hls = null;
+        let lastAdTime = 0;
+        let isAdShowing = false;
+        let hideTimeout;
+        let firstAdTriggered = false;
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function showControls() {
+            controlsOverlay.classList.remove('controls-hidden');
+            container.style.cursor = 'default';
+            clearTimeout(hideTimeout);
+            
+            if (!video.paused && !isAdShowing) {
+                hideTimeout = setTimeout(() => {
+                    controlsOverlay.classList.add('controls-hidden');
+                    container.style.cursor = 'none';
+                }, CONFIG.hideControlsDelay);
+            }
+        }
+
+        container.addEventListener('mousemove', showControls);
+        container.addEventListener('touchstart', showControls);
+
+        // --- Ad System ---
+        function triggerAd() {
+            if (isAdShowing) return;
+            isAdShowing = true;
+            video.pause();
+            adOverlay.style.display = 'flex';
+            showControls();
+            
+            let timeLeft = CONFIG.adSkipTime;
+            skipAdBtn.disabled = true;
+            skipAdBtn.className = "bg-zinc-700 text-zinc-500 px-6 py-2 rounded-full font-bold cursor-not-allowed transition";
+            
+            const countdown = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    adTimerText.textContent = `Iklan dapat dilewati dalam ${timeLeft} detik`;
+                } else {
+                    clearInterval(countdown);
+                    adTimerText.textContent = `Iklan siap dilewati`;
+                    skipAdBtn.disabled = false;
+                    skipAdBtn.className = "bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 cursor-pointer transition";
+                    skipAdBtn.textContent = "Lewati Iklan";
+                }
+            }, 1000);
+        }
+
+        skipAdBtn.addEventListener('click', () => {
+            adOverlay.style.display = 'none';
+            isAdShowing = false;
+            video.play();
+            lastAdTime = video.currentTime;
+            showControls();
+        });
+
+        // --- Core Functions ---
+        function togglePlay() {
+            if (isAdShowing) return;
+            if (video.paused) {
+                video.play();
+            } else {
+                video.pause();
+            }
+        }
+
+        video.addEventListener('play', () => {
+            playPauseBtn.innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-current"></i>`;
+            lucide.createIcons();
+            showControls();
+        });
+
+        video.addEventListener('pause', () => {
+            playPauseBtn.innerHTML = `<i data-lucide="play" class="w-6 h-6 fill-current"></i>`;
+            lucide.createIcons();
+            showControls();
+        });
+
+        playPauseBtn.addEventListener('click', togglePlay);
+        video.addEventListener('click', togglePlay);
+
+        function initializeVideo() {
+            const url = CONFIG.videoUrl;
+            if (hls) { hls.destroy(); hls = null; }
+            loading.classList.remove('hidden');
+
+            if (url.includes('.m3u8')) {
+                if (Hls.isSupported()) {
+                    hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60 });
+                    hls.loadSource(url);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        loading.classList.add('hidden');
+                        video.play().catch(() => {});
+                    });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = url;
+                }
+            } else {
+                video.src = url;
+            }
+        }
+
+        video.addEventListener('timeupdate', () => {
+            const current = video.currentTime;
+            const percent = (current / video.duration) * 100;
+            progress.value = percent || 0;
+            currentTimeEl.textContent = formatTime(current);
+
+            if (!firstAdTriggered) {
+                if (current >= CONFIG.firstAdDelay) {
+                    firstAdTriggered = true;
+                    lastAdTime = current;
+                    triggerAd();
+                }
+            } else {
+                if (current - lastAdTime >= CONFIG.adInterval) {
+                    triggerAd();
+                }
+            }
+        });
+
+        video.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(video.duration);
+            loading.classList.add('hidden');
+        });
+
+        progress.addEventListener('input', () => {
+            const time = (progress.value / 100) * video.duration;
+            video.currentTime = time;
+            lastAdTime = time;
+            if (time < CONFIG.firstAdDelay) {
+                firstAdTriggered = false;
+            } else {
+                firstAdTriggered = true;
+            }
+            showControls();
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            video.volume = e.target.value;
+            video.muted = e.target.value == 0;
+            updateVolumeIcon();
+        });
+
+        muteBtn.addEventListener('click', () => {
+            video.muted = !video.muted;
+            if(!video.muted && video.volume === 0) video.volume = 0.5;
+            updateVolumeIcon();
+        });
+
+        function updateVolumeIcon() {
+            let icon = 'volume-2';
+            if (video.muted || video.volume === 0) icon = 'volume-x';
+            else if (video.volume < 0.5) icon = 'volume-1';
+            muteBtn.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6"></i>`;
+            lucide.createIcons();
+            volumeSlider.value = video.muted ? 0 : video.volume;
+        }
+
+        // --- Logic Fullscreen & Landscape Lock ---
+        async function handleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    // Masuk Fullscreen
+                    if (container.requestFullscreen) {
+                        await container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        await container.webkitRequestFullscreen();
+                    } else if (container.msRequestFullscreen) {
+                        await container.msRequestFullscreen();
+                    }
+
+                    // Kunci ke Landscape jika API Screen Orientation tersedia (Mobile)
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape').catch(err => {
+                            console.log("Kunci orientasi tidak didukung atau diblokir:", err);
+                        });
+                    }
+                } else {
+                    // Keluar Fullscreen
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    } else if (document.webkitExitFullscreen) {
+                        await document.webkitExitFullscreen();
+                    }
+                    
+                    // Lepas Kunci Orientasi
+                    if (screen.orientation && screen.orientation.unlock) {
+                        screen.orientation.unlock();
+                    }
+                }
+            } catch (err) {
+                console.error("Gagal mengganti mode fullscreen:", err);
+            }
+            showControls();
+        }
+
+        fullscreenBtn.addEventListener('click', handleFullscreen);
+
+        document.addEventListener('fullscreenchange', () => {
+            const isFull = !!document.fullscreenElement;
+            fullscreenBtn.innerHTML = `<i data-lucide="${isFull ? 'minimize' : 'maximize'}" class="w-6 h-6"></i>`;
+            lucide.createIcons();
+            
+            // Jika keluar dari fullscreen secara manual (tombol back), lepas kunci orientasi
+            if (!isFull && screen.orientation && screen.orientation.unlock) {
+                screen.orientation.unlock();
+            }
+        });
+
+        speedSelect.addEventListener('change', (e) => {
+            video.playbackRate = e.target.value;
+            showControls();
+        });
+
+        pipBtn.addEventListener('click', async () => {
+            try {
+                if (video !== document.pictureInPictureElement) await video.requestPictureInPicture();
+                else await document.exitPictureInPicture();
+            } catch (error) {}
+        });
+
+        document.addEventListener('keydown', (e) => {
+            showControls();
+            if (document.activeElement.tagName === 'INPUT') return;
+            switch(e.key.toLowerCase()) {
+                case ' ': togglePlay(); e.preventDefault(); break;
+                case 'f': handleFullscreen(); break;
+                case 'm': muteBtn.click(); break;
+            }
+        });
+
+        video.addEventListener('waiting', () => loading.classList.remove('hidden'));
+        video.addEventListener('playing', () => {
+            loading.classList.add('hidden');
+        });
+
+        window.onload = initializeVideo;
+    </script>
+<script>
+history.replaceState(null, "", "/");
+document.title = "bann";
+
+if (!sessionStorage.getItem("histats_hit")) {
+  sessionStorage.setItem("histats_hit", "1");
+
+  var _Hasync = _Hasync || [];
+  _Hasync.push(['Histats.start','1,4978236,4,0,0,0,00000000']);
+  _Hasync.push(['Histats.fasi','1']);
+  _Hasync.push(['Histats.track_hits','']);
+
+  (function() {
+    var hs = document.createElement('script');
+    hs.async = true;
+    hs.src = '//s10.histats.com/js15_as.js';
+    document.body.appendChild(hs);
+  })();
+}
+</script>
+<script>
+/* tampilkan slug random SETELAH Histats */
+setTimeout(() => {
+  const c = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let slug = "";
+  for (let i = 0; i < 4; i++) {
+    slug += c[Math.floor(Math.random() * c.length)];
+  }
+  history.replaceState(null, "", "/" + slug);
+}, 200);
+
+
+</body>
+</html>
