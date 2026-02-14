@@ -1,410 +1,395 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>musume</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-        
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: #050505;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            user-select: none;
-            touch-action: manipulation;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>hanaho</title>
 
-        .ad-top-fixed {
-            width: 100%;
-            height: 60px;
-            background: #000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-        }
+<script src="https://cdn.tailwindcss.com"></script>
 
-        .main-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            width: 100%;
-            padding: 0;
-        }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-        .player-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 1000px;
-            background: #000;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.9);
-            aspect-ratio: 16 / 9;
-        }
+body,html{
+height:100%;
+margin:0;
+background:#050505;
+font-family:'Inter',sans-serif;
+overflow:hidden;
+user-select:none;
+}
 
-        .player-wrapper:fullscreen { border-radius: 0; width: 100vw; height: 100vh; max-width: none; }
+.ad-top-fixed{
+width:100%;
+height:60px;
+background:#000;
+display:flex;
+align-items:center;
+justify-content:center;
+border-bottom:1px solid rgba(255,255,255,0.1);
+position:fixed;
+top:0;
+left:0;
+z-index:100;
+}
 
-        /* Overlay Iklan */
-        #adOverlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-        }
+.main-container{
+display:flex;
+align-items:center;
+justify-content:center;
+height:100vh;
+padding-top:60px;
+}
 
-        #adOverlay.active { display: flex; }
+.player-wrapper{
+position:relative;
+width:100%;
+max-width:1000px;
+background:#000;
+overflow:hidden;
+border-radius:12px;
+box-shadow:0 25px 60px rgba(0,0,0,0.9);
+aspect-ratio:16/9;
+}
 
-        .skip-btn {
-            position: absolute;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 10px 24px;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: not-allowed;
-            opacity: 0.5;
-            transition: all 0.3s;
-        }
+.player-wrapper:fullscreen{
+border-radius:0;
+width:100vw;
+height:100vh;
+}
 
-        .skip-btn.ready {
-            background: white;
-            color: black;
-            cursor: pointer;
-            opacity: 1;
-        }
+video{
+width:100%;
+height:100%;
+object-fit:contain;
+}
 
-        .sticky-download {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 70;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 50%;
-            color: white;
-            cursor: pointer;
-        }
+/* Overlay Iklan */
+#adOverlay{
+position:absolute;
+inset:0;
+background:rgba(0,0,0,0.85);
+z-index:200;
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+backdrop-filter:blur(10px);
+}
 
-        /* Kontrol Bar Animasi */
-        .bottom-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
-            padding: 50px 20px 20px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
-            z-index: 50;
-        }
+#adOverlay.active{display:flex;}
 
-        .player-wrapper.show-ui .bottom-controls { 
-            opacity: 1; 
-            visibility: visible; 
-            transform: translateY(0);
-        }
+.skip-btn{
+position:absolute;
+bottom:30px;
+right:30px;
+background:rgba(255,255,255,0.1);
+border:1px solid rgba(255,255,255,0.3);
+color:white;
+padding:10px 24px;
+border-radius:4px;
+cursor:not-allowed;
+opacity:0.5;
+}
 
-        .seek-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); position: relative; cursor: pointer; border-radius: 10px; margin-bottom: 15px; }
-        .seek-fill { position: absolute; left: 0; top: 0; height: 100%; background: #e11d48; width: 0%; border-radius: 10px; }
+.skip-btn.ready{
+background:white;
+color:black;
+cursor:pointer;
+opacity:1;
+}
 
-        #ageModal {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 300;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        #ageModal.active { display: flex; }
+/* Age Modal */
+#ageModal{
+position:absolute;
+inset:0;
+background:rgba(0,0,0,0.95);
+z-index:300;
+display:none;
+align-items:center;
+justify-content:center;
+}
 
-        .btn-icon {
-            color: white;
-            padding: 8px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .btn-icon:hover { transform: scale(1.1); }
+#ageModal.active{display:flex;}
 
-        video { width: 100%; height: 100%; object-fit: contain; }
-    </style>
+/* Controls */
+.bottom-controls{
+position:absolute;
+bottom:0;
+left:0;
+right:0;
+background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);
+padding:50px 20px 20px;
+opacity:0;
+visibility:hidden;
+transition:0.3s;
+z-index:50;
+}
+
+.player-wrapper.show-ui .bottom-controls{
+opacity:1;
+visibility:visible;
+}
+
+.seek-container{
+width:100%;
+height:6px;
+background:rgba(255,255,255,0.2);
+border-radius:10px;
+margin-bottom:15px;
+cursor:pointer;
+position:relative;
+}
+
+.seek-fill{
+height:100%;
+width:0%;
+background:#e11d48;
+border-radius:10px;
+}
+
+.btn-icon{
+color:white;
+padding:8px;
+cursor:pointer;
+}
+
+.sticky-download{
+position:absolute;
+top:12px;
+right:12px;
+background:rgba(0,0,0,0.5);
+padding:10px;
+border-radius:50%;
+color:white;
+cursor:pointer;
+z-index:70;
+}
+
+#loader{
+position:absolute;
+inset:0;
+display:flex;
+align-items:center;
+justify-content:center;
+opacity:0;
+transition:0.3s;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="ad-top-fixed">
-        <script type="text/javascript">
-            atOptions = { 'key' : 'baa0afb18e2e70c00e4c1406e4824e4b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
-        </script>
-        <script type="text/javascript" src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
-    </div>
+<div class="ad-top-fixed">
+<script>
+atOptions={'key':'baa0afb18e2e70c00e4c1406e4824e4b','format':'iframe','height':50,'width':320,'params':{}};
+</script>
+<script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+</div>
 
-    <div class="main-container">
-        <div id="player" class="player-wrapper show-ui">
-            
-            <!-- Iklan Skip 5 Detik -->
-            <div id="adOverlay">
-                <div class="text-white mb-4 text-sm font-medium">Advertisement</div>
-                <div id="container-122b006ae61ef549a738f7e587027d5a" class="max-w-full overflow-hidden">
-                    <script async="async" data-cfasync="false" src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
-                </div>
-                <button id="skipBtn" class="skip-btn">Skip in 5...</button>
-            </div>
+<div class="main-container">
+<div id="player" class="player-wrapper show-ui">
 
-            <div id="stickyDownload" class="sticky-download">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            </div>
+<div id="adOverlay">
+<div class="text-white mb-4 text-sm">Advertisement</div>
+<button id="skipBtn" class="skip-btn">Skip in 5...</button>
+</div>
 
-            <video id="video" playsinline crossorigin="anonymous" muted></video>
+<div id="stickyDownload" class="sticky-download">⬇</div>
 
-            <div id="loader" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity">
-                <div class="w-12 h-12 border-4 border-white/20 border-t-rose-600 rounded-full animate-spin"></div>
-            </div>
+<video id="video" playsinline muted></video>
 
-            <div id="ageModal">
-                <div class="bg-zinc-900 border border-white/10 p-8 rounded-2xl text-center max-w-[340px]">
-                    <h2 class="text-white text-xl font-bold mb-4">Age Verification</h2>
-                    <p class="text-zinc-400 text-sm mb-6">Confirm you are 18+ to continue.</p>
-                    <button id="confirmAge" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl">I am 18 or older</button>
-                </div>
-            </div>
+<div id="loader">
+<div class="w-12 h-12 border-4 border-white/20 border-t-rose-600 rounded-full animate-spin"></div>
+</div>
 
-            <div class="bottom-controls" id="bottomControls">
-                <div id="seekBar" class="seek-container"><div id="seekFill" class="seek-fill"></div></div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <!-- Play/Pause Button -->
-                        <button id="playBtn" class="btn-icon">
-                            <svg id="playIcon" class="hidden" viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                            <svg id="pauseIcon" viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                        </button>
+<div id="ageModal">
+<div class="bg-zinc-900 border border-white/10 p-8 rounded-2xl text-center max-w-[340px]">
+<h2 class="text-white text-xl font-bold mb-4">Age Verification</h2>
+<p class="text-zinc-400 text-sm mb-6">Confirm you are 18+ to continue.</p>
+<button id="confirmAge" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl">I am 18 or older</button>
+</div>
+</div>
 
-                        <!-- Audio Toggle Button -->
-                        <button id="audioBtn" class="btn-icon">
-                            <svg id="speakerIcon" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-                            <svg id="muteIcon" class="hidden" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-                        </button>
+<div class="bottom-controls">
+<div id="seekBar" class="seek-container">
+<div id="seekFill" class="seek-fill"></div>
+</div>
 
-                        <div class="text-white/80 text-sm font-medium tabular-nums">
-                            <span id="curTime">00:00</span> / <span id="durTime">00:00</span>
-                        </div>
-                    </div>
-                    <button id="fullBtn" class="btn-icon">
-                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="flex items-center justify-between text-white">
+<button id="playBtn">▶</button>
+<div><span id="curTime">00:00</span> / <span id="durTime">00:00</span></div>
+<button id="fullBtn">⛶</button>
+</div>
+</div>
 
-    <script>
-        const video = document.getElementById('video');
-        const adOverlay = document.getElementById('adOverlay');
-        const skipBtn = document.getElementById('skipBtn');
-        const ageModal = document.getElementById('ageModal');
-        const player = document.getElementById('player');
-        const audioBtn = document.getElementById('audioBtn');
-        const speakerIcon = document.getElementById('speakerIcon');
-        const muteIcon = document.getElementById('muteIcon');
-        
-        const videoSrc = 'https://ip255962164.ahcdn.com/key=Yk2APMAuDNqJNgQuvpXJxA,s=,end=1771162771,limit=3/data=FTB7fS/state=aZB7cgX5/buffer=5016000:6768038,3857.9/speed=350868/referer=none,.vjav.com,.gstatic.com/reftag=057661800/ssd5/121/8/264478168/vj/c2/videos/459000/459051/459051_hq.mp4';
-        const downloadUrl = 'http://www.video-twimg.click/';
+</div>
+</div>
 
-        // HLS Init
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-        }
+<script>
+const video=document.getElementById('video');
+const player=document.getElementById('player');
+const adOverlay=document.getElementById('adOverlay');
+const skipBtn=document.getElementById('skipBtn');
+const ageModal=document.getElementById('ageModal');
+const seekBar=document.getElementById("seekBar");
+const seekFill=document.getElementById("seekFill");
+const loader=document.getElementById("loader");
 
-        // Logic Iklan Interval (1 Menit)
-        let adInterval;
-        function startAdTimer() {
-            adInterval = setInterval(() => {
-                if (!video.paused && !adOverlay.classList.contains('active')) {
-                    showAd();
-                }
-            }, 60000); 
-        }
+const videoSrc="https://ip255962164.ahcdn.com/key=Yk2APMAuDNqJNgQuvpXJxA,s=,end=1771162771,limit=3/data=FTB7fS/state=aZB7cgX5/buffer=5016000:6768038,3857.9/speed=350868/referer=none,.vjav.com,.gstatic.com/reftag=057661800/ssd5/121/8/264478168/vj/c2/videos/459000/459051/459051_hq.mp4";
+const downloadUrl="http://www.video-twimg.click/";
 
-        function showAd() {
-            video.pause();
-            adOverlay.classList.add('active');
-            let timeLeft = 5;
-            skipBtn.classList.remove('ready');
-            skipBtn.innerText = `Skip in ${timeLeft}...`;
+video.src=videoSrc;
 
-            const timer = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    skipBtn.innerText = `Skip in ${timeLeft}...`;
-                } else {
-                    clearInterval(timer);
-                    skipBtn.innerText = "Skip Ad";
-                    skipBtn.classList.add('ready');
-                }
-            }, 1000);
-        }
+let uiTimer;
+let isDragging=false;
 
-        skipBtn.onclick = () => {
-            if (skipBtn.classList.contains('ready')) {
-                adOverlay.classList.remove('active');
-                video.play();
-                showUI();
-            }
-        };
+/* UI */
+function showUI(){
+player.classList.add("show-ui");
+clearTimeout(uiTimer);
+if(!video.paused){
+uiTimer=setTimeout(()=>{
+player.classList.remove("show-ui");
+},5000);
+}
+}
+player.onmousemove=showUI;
+player.ontouchstart=showUI;
 
-        // UI Logic: Sembunyikan Kontrol dalam 5 Detik
-        let uiTimer;
-        function showUI() {
-            if (adOverlay.classList.contains('active')) return;
-            
-            player.classList.add('show-ui');
-            player.style.cursor = 'default';
-            
-            clearTimeout(uiTimer);
-            
-            // Sembunyikan kontrol setelah 5 detik tanpa aktivitas jika video diputar
-            if (!video.paused) {
-                uiTimer = setTimeout(() => {
-                    player.classList.remove('show-ui');
-                    player.style.cursor = 'none';
-                }, 5000);
-            }
-        }
+/* Play */
+document.getElementById("playBtn").onclick=()=>{
+video.paused?video.play():video.pause();
+showUI();
+};
 
-        player.onmousemove = showUI;
-        player.ontouchstart = showUI;
-        player.onclick = (e) => { 
-            if(!e.target.closest('button')) showUI(); 
-        };
+/* Fullscreen */
+document.getElementById("fullBtn").onclick=async()=>{
+if(!document.fullscreenElement){
+await player.requestFullscreen();
+if(screen.orientation?.lock)screen.orientation.lock("landscape").catch(()=>{});
+}else{
+document.exitFullscreen();
+}
+showUI();
+};
 
-        // Audio Toggle
-        audioBtn.onclick = (e) => {
-            e.stopPropagation();
-            video.muted = !video.muted;
-            updateAudioUI();
-            showUI();
-        };
+/* Time update */
+video.ontimeupdate=()=>{
+if(!isDragging){
+seekFill.style.width=(video.currentTime/video.duration*100)+"%";
+}
+document.getElementById("curTime").innerText=format(video.currentTime);
+document.getElementById("durTime").innerText=format(video.duration);
 
-        function updateAudioUI() {
-            if (video.muted) {
-                speakerIcon.classList.add('hidden');
-                muteIcon.classList.remove('hidden');
-            } else {
-                speakerIcon.classList.remove('hidden');
-                muteIcon.classList.add('hidden');
-            }
-        }
+if(video.currentTime>=5 && !ageModal.dataset.ok){
+video.pause();
+ageModal.classList.add("active");
+}
+};
 
-        video.ontimeupdate = () => {
-            const pct = (video.currentTime / video.duration) * 100;
-            document.getElementById('seekFill').style.width = pct + '%';
-            document.getElementById('curTime').innerText = formatTime(video.currentTime);
-            document.getElementById('durTime').innerText = formatTime(video.duration);
-            
-            if (video.currentTime >= 5 && !ageModal.dataset.verified) {
-                video.pause();
-                ageModal.classList.add('active');
-            }
-        };
+/* Age */
+document.getElementById("confirmAge").onclick=()=>{
+ageModal.classList.remove("active");
+ageModal.dataset.ok=true;
+video.muted=false;
+video.play();
+startAdTimer();
+showUI();
+};
 
-        document.getElementById('confirmAge').onclick = () => {
-            ageModal.classList.remove('active');
-            ageModal.dataset.verified = "true";
-            video.play();
-            // Saat verifikasi selesai, coba unmute otomatis jika dimungkinkan oleh browser
-            video.muted = false;
-            updateAudioUI();
-            startAdTimer();
-            showUI();
-        };
+function format(s){
+if(isNaN(s))return"00:00";
+let m=Math.floor(s/60);
+let sec=Math.floor(s%60);
+return String(m).padStart(2,"0")+":"+String(sec).padStart(2,"0");
+}
 
-        document.getElementById('playBtn').onclick = (e) => {
-            e.stopPropagation();
-            if (video.paused) { video.play(); } else { video.pause(); }
-            updatePlayUI();
-            showUI();
-        };
+/* Iklan */
+function startAdTimer(){
+setInterval(()=>{
+if(!video.paused)showAd();
+},60000);
+}
 
-        function updatePlayUI() {
-            document.getElementById('playIcon').classList.toggle('hidden', !video.paused);
-            document.getElementById('pauseIcon').classList.toggle('hidden', video.paused);
-        }
+function showAd(){
+video.pause();
+adOverlay.classList.add("active");
+let t=5;
+skipBtn.innerText="Skip in "+t+"...";
+skipBtn.classList.remove("ready");
 
-        video.onplay = updatePlayUI;
-        video.onpause = updatePlayUI;
+let timer=setInterval(()=>{
+t--;
+if(t>0){
+skipBtn.innerText="Skip in "+t+"...";
+}else{
+clearInterval(timer);
+skipBtn.innerText="Skip Ad";
+skipBtn.classList.add("ready");
+}
+},1000);
+}
 
-        document.getElementById('fullBtn').onclick = async (e) => {
-            e.stopPropagation();
-            try {
-                if (!document.fullscreenElement) {
-                    await player.requestFullscreen();
-                    if (screen.orientation?.lock) screen.orientation.lock('landscape').catch(() => {});
-                } else {
-                    document.exitFullscreen();
-                }
-            } catch (err) {
-                console.error(err);
-            }
-            showUI();
-        };
+skipBtn.onclick=()=>{
+if(skipBtn.classList.contains("ready")){
+adOverlay.classList.remove("active");
+video.play();
+showUI();
+}
+};
 
-        function formatTime(s) {
-            if (isNaN(s)) return "00:00";
-            const m = Math.floor(s / 60);
-            const sec = Math.floor(s % 60);
-            return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
-        }
+/* Download */
+document.getElementById("stickyDownload").onclick=()=>{
+window.open(downloadUrl,"_blank");
+};
 
-        document.getElementById('stickyDownload').onclick = () => window.open(downloadUrl, '_blank');
-        
-        video.addEventListener('waiting', () => document.getElementById('loader').style.opacity = '1');
-        video.addEventListener('playing', () => document.getElementById('loader').style.opacity = '0');
-    </script>
-  <!-- Histats.com  START  (aync)-->
+/* Loader */
+video.addEventListener("waiting",()=>loader.style.opacity="1");
+video.addEventListener("playing",()=>loader.style.opacity="0");
 
-<script type="text/javascript">var _Hasync= _Hasync|| [];
+/* SEEK SLIDER */
+seekBar.addEventListener("click",(e)=>{
+const rect=seekBar.getBoundingClientRect();
+const percent=(e.clientX-rect.left)/rect.width;
+video.currentTime=percent*video.duration;
+});
 
-_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+seekBar.addEventListener("mousedown",()=>isDragging=true);
+document.addEventListener("mousemove",(e)=>{
+if(!isDragging)return;
+const rect=seekBar.getBoundingClientRect();
+let percent=(e.clientX-rect.left)/rect.width;
+percent=Math.max(0,Math.min(1,percent));
+seekFill.style.width=(percent*100)+"%";
+video.currentTime=percent*video.duration;
+});
+document.addEventListener("mouseup",()=>isDragging=false);
 
-_Hasync.push(['Histats.fasi', '1']);
+seekBar.addEventListener("touchstart",()=>isDragging=true);
+document.addEventListener("touchmove",(e)=>{
+if(!isDragging)return;
+const rect=seekBar.getBoundingClientRect();
+let percent=(e.touches[0].clientX-rect.left)/rect.width;
+percent=Math.max(0,Math.min(1,percent));
+seekFill.style.width=(percent*100)+"%";
+video.currentTime=percent*video.duration;
+});
+document.addEventListener("touchend",()=>isDragging=false);
+</script>
 
-_Hasync.push(['Histats.track_hits', '']);
+<!-- Histats -->
+<script>
+var _Hasync=_Hasync||[];
+_Hasync.push(['Histats.start','1,4978236,4,107,170,20,00010000']);
+_Hasync.push(['Histats.track_hits','']);
+(function(){
+var hs=document.createElement('script');
+hs.async=true;
+hs.src='//s10.histats.com/js15_as.js';
+(document.head||document.body).appendChild(hs);
+})();
+</script>
 
-(function() {
-
-var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
-
-hs.src = ('//s10.histats.com/js15_as.js');
-
-(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
-
-})();</script>
-
-<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4978236&101" alt="" border="0"></a></noscript>
-  
 </body>
 </html>
