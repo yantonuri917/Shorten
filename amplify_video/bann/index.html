@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player Pro</title>
-    <!-- Tailwind CSS untuk Styling -->
+    <title>Pro Video Player</title>
+    <!-- Tailwind CSS for Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- HLS.js untuk dukungan streaming m3u8 -->
+    <!-- HLS.js for m3u8 streaming support -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
         video::-webkit-media-controls {
             display: none !important;
         }
         
-        /* Transisi halus untuk kontrol */
         .controls-overlay {
             transition: opacity 0.5s ease-in-out;
         }
@@ -44,14 +43,26 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Iklan Overlay Style */
+        /* Ad Overlay Styling */
         #adOverlay {
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 100;
+            padding: 20px;
+        }
+
+        #adContainerWrapper {
+            max-width: 100%;
+            max-height: 70%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
         }
     </style>
 </head>
@@ -62,8 +73,9 @@
         <div id="playerContainer" class="video-container relative group bg-black rounded-xl overflow-hidden shadow-2xl aspect-video flex items-center justify-center cursor-none">
             
             <!-- Ad Overlay -->
-            <div id="adOverlay" class="absolute inset-0">
-                <div class="relative bg-white p-2 rounded-lg shadow-lg">
+            <div id="adOverlay" class="absolute inset-0 w-full h-full">
+                <!-- Ad Wrapper -->
+                <div id="adContainerWrapper" class="shadow-lg mb-4">
                     <div id="adContainer">
                         <script>
                             atOptions = {
@@ -78,10 +90,13 @@
                     </div>
                 </div>
                 
-                <div class="mt-4 flex flex-col items-center">
-                    <p id="adTimerText" class="text-sm text-zinc-400 mb-2">Iklan dapat dilewati dalam 10 detik</p>
-                    <button id="skipAdBtn" disabled class="bg-zinc-700 text-zinc-500 px-6 py-2 rounded-full font-bold cursor-not-allowed transition">
-                        Lewati Iklan
+                <!-- English Skip Controls -->
+                <div class="flex flex-col items-center w-full">
+                    <p id="adTimerText" class="text-sm sm:text-base text-zinc-300 mb-3 font-medium bg-black/50 px-4 py-1 rounded-full">
+                        Ad can be skipped in 10 seconds
+                    </p>
+                    <button id="skipAdBtn" disabled class="bg-zinc-700 text-zinc-500 px-8 py-3 rounded-md font-bold cursor-not-allowed transition-all duration-300 shadow-xl border border-zinc-600">
+                        Skip Ad
                     </button>
                 </div>
             </div>
@@ -93,7 +108,7 @@
 
             <!-- Video Element -->
             <video id="mainVideo" class="w-full h-full" crossorigin="anonymous" playsinline autoplay muted>
-                Browser Anda tidak mendukung tag video.
+                Your browser does not support the video tag.
             </video>
 
             <!-- Custom Controls Overlay -->
@@ -118,17 +133,17 @@
                                 class="w-0 group-hover/volume:w-20 transition-all duration-300 accent-white custom-range">
                         </div>
 
-                        <div class="text-sm font-medium tabular-nums">
+                        <div class="text-sm font-medium tabular-nums text-zinc-300">
                             <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <select id="speedSelect" class="bg-transparent text-xs border border-zinc-600 rounded px-1 outline-none focus:border-blue-500 cursor-pointer">
-                            <option value="0.5" class="bg-zinc-800">0.5x</option>
-                            <option value="1" class="bg-zinc-800" selected>Normal</option>
-                            <option value="1.5" class="bg-zinc-800">1.5x</option>
-                            <option value="2" class="bg-zinc-800">2x</option>
+                        <select id="speedSelect" class="bg-zinc-800 text-xs border border-zinc-600 rounded px-1 outline-none focus:border-blue-500 cursor-pointer">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>Normal</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
                         </select>
 
                         <button id="pipBtn" class="hover:text-blue-400 transition" title="Picture in Picture">
@@ -186,11 +201,15 @@
         }
 
         function showControls() {
+            if (isAdShowing) {
+                controlsOverlay.classList.add('controls-hidden');
+                return;
+            }
             controlsOverlay.classList.remove('controls-hidden');
             container.style.cursor = 'default';
             clearTimeout(hideTimeout);
             
-            if (!video.paused && !isAdShowing) {
+            if (!video.paused) {
                 hideTimeout = setTimeout(() => {
                     controlsOverlay.classList.add('controls-hidden');
                     container.style.cursor = 'none';
@@ -206,23 +225,25 @@
             if (isAdShowing) return;
             isAdShowing = true;
             video.pause();
+            
+            controlsOverlay.classList.add('controls-hidden');
             adOverlay.style.display = 'flex';
-            showControls();
+            container.style.cursor = 'default';
             
             let timeLeft = CONFIG.adSkipTime;
             skipAdBtn.disabled = true;
-            skipAdBtn.className = "bg-zinc-700 text-zinc-500 px-6 py-2 rounded-full font-bold cursor-not-allowed transition";
+            skipAdBtn.textContent = "Skip Ad";
+            skipAdBtn.className = "bg-zinc-700 text-zinc-500 px-8 py-3 rounded-md font-bold cursor-not-allowed transition-all duration-300 border border-zinc-600";
             
             const countdown = setInterval(() => {
                 timeLeft--;
                 if (timeLeft > 0) {
-                    adTimerText.textContent = `Iklan dapat dilewati dalam ${timeLeft} detik`;
+                    adTimerText.textContent = `Ad can be skipped in ${timeLeft} seconds`;
                 } else {
                     clearInterval(countdown);
-                    adTimerText.textContent = `Iklan siap dilewati`;
+                    adTimerText.textContent = `Ad is ready to skip`;
                     skipAdBtn.disabled = false;
-                    skipAdBtn.className = "bg-blue-600 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-700 cursor-pointer transition";
-                    skipAdBtn.textContent = "Lewati Iklan";
+                    skipAdBtn.className = "bg-blue-600 text-white px-8 py-3 rounded-md font-bold hover:bg-blue-700 cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-blue-400";
                 }
             }, 1000);
         }
@@ -238,11 +259,8 @@
         // --- Core Functions ---
         function togglePlay() {
             if (isAdShowing) return;
-            if (video.paused) {
-                video.play();
-            } else {
-                video.pause();
-            }
+            if (video.paused) video.play();
+            else video.pause();
         }
 
         video.addEventListener('play', () => {
@@ -283,6 +301,7 @@
         }
 
         video.addEventListener('timeupdate', () => {
+            if (isAdShowing) return;
             const current = video.currentTime;
             const percent = (current / video.duration) * 100;
             progress.value = percent || 0;
@@ -310,11 +329,8 @@
             const time = (progress.value / 100) * video.duration;
             video.currentTime = time;
             lastAdTime = time;
-            if (time < CONFIG.firstAdDelay) {
-                firstAdTriggered = false;
-            } else {
-                firstAdTriggered = true;
-            }
+            if (time < CONFIG.firstAdDelay) firstAdTriggered = false;
+            else firstAdTriggered = true;
             showControls();
         });
 
@@ -339,41 +355,20 @@
             volumeSlider.value = video.muted ? 0 : video.volume;
         }
 
-        // --- Logic Fullscreen & Landscape Lock ---
         async function handleFullscreen() {
             try {
                 if (!document.fullscreenElement) {
-                    // Masuk Fullscreen
-                    if (container.requestFullscreen) {
-                        await container.requestFullscreen();
-                    } else if (container.webkitRequestFullscreen) {
-                        await container.webkitRequestFullscreen();
-                    } else if (container.msRequestFullscreen) {
-                        await container.msRequestFullscreen();
-                    }
-
-                    // Kunci ke Landscape jika API Screen Orientation tersedia (Mobile)
+                    if (container.requestFullscreen) await container.requestFullscreen();
+                    else if (container.webkitRequestFullscreen) await container.webkitRequestFullscreen();
+                    
                     if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape').catch(err => {
-                            console.log("Kunci orientasi tidak didukung atau diblokir:", err);
-                        });
+                        await screen.orientation.lock('landscape').catch(() => {});
                     }
                 } else {
-                    // Keluar Fullscreen
-                    if (document.exitFullscreen) {
-                        await document.exitFullscreen();
-                    } else if (document.webkitExitFullscreen) {
-                        await document.webkitExitFullscreen();
-                    }
-                    
-                    // Lepas Kunci Orientasi
-                    if (screen.orientation && screen.orientation.unlock) {
-                        screen.orientation.unlock();
-                    }
+                    if (document.exitFullscreen) await document.exitFullscreen();
+                    if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
                 }
-            } catch (err) {
-                console.error("Gagal mengganti mode fullscreen:", err);
-            }
+            } catch (err) {}
             showControls();
         }
 
@@ -383,11 +378,7 @@
             const isFull = !!document.fullscreenElement;
             fullscreenBtn.innerHTML = `<i data-lucide="${isFull ? 'minimize' : 'maximize'}" class="w-6 h-6"></i>`;
             lucide.createIcons();
-            
-            // Jika keluar dari fullscreen secara manual (tombol back), lepas kunci orientasi
-            if (!isFull && screen.orientation && screen.orientation.unlock) {
-                screen.orientation.unlock();
-            }
+            if (!isFull && screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
         });
 
         speedSelect.addEventListener('change', (e) => {
@@ -410,11 +401,6 @@
                 case 'f': handleFullscreen(); break;
                 case 'm': muteBtn.click(); break;
             }
-        });
-
-        video.addEventListener('waiting', () => loading.classList.remove('hidden'));
-        video.addEventListener('playing', () => {
-            loading.classList.add('hidden');
         });
 
         window.onload = initializeVideo;
