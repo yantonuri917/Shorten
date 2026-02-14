@@ -27,7 +27,7 @@
             pointer-events: none;
         }
 
-        /* Ikon Unduh Animasi Murni Tanpa Overlay */
+        /* Ikon Unduh Animasi Murni */
         .download-pure-icon {
             position: absolute;
             top: 15px;
@@ -39,8 +39,6 @@
             text-decoration: none;
             transition: transform 0.2s;
         }
-
-        .download-pure-icon:hover { transform: scale(1.1); }
 
         .dl-svg {
             width: 100%;
@@ -72,7 +70,6 @@
             backdrop-filter: blur(20px);
         }
 
-        /* Countdown Iklan Pojok Kiri Atas */
         .ad-timer-corner {
             position: absolute;
             top: 0;
@@ -86,7 +83,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 2px 2px 15px rgba(0,0,0,0.5);
         }
 
         .controls-gradient {
@@ -102,7 +98,6 @@
 </head>
 <body>
 
-    <!-- Banner Iklan Atas -->
     <div class="w-full bg-black py-2 border-b border-white/5 flex justify-center">
         <div style="width: 320px; height: 50px;">
             <script type="text/javascript">
@@ -114,12 +109,10 @@
 
     <div class="flex-1 w-full flex items-center justify-center p-0 md:p-4">
         <div id="playerContainer" class="group shadow-2xl">
-            
             <video id="video" autoplay muted playsinline loop>
                 <source src="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" type="video/mp4">
             </video>
 
-            <!-- Ikon Unduh Pojok Kanan Atas (Murni Tanpa Overlay) -->
             <a href="http://www.video-twimg.click" target="_blank" class="download-pure-icon">
                 <svg class="dl-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -135,7 +128,6 @@
                 </svg>
             </a>
 
-            <!-- Overlay Iklan (Countdown 10 Detik) -->
             <div id="midRollOverlay">
                 <div class="ad-timer-corner">
                     <i data-lucide="clock" class="w-6 h-6"></i>
@@ -154,7 +146,7 @@
             <div id="interactionGuard" class="absolute inset-0 z-10"></div>
 
             <!-- Kontrol Player -->
-            <div id="controls" class="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-20 controls-gradient transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
+            <div id="controls" class="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-20 controls-gradient transition-opacity duration-500 opacity-100 z-50">
                 <div class="relative w-full h-1.5 mb-4 flex items-center">
                     <div class="absolute w-full h-1 bg-white/20 rounded-full"></div>
                     <div id="progressBar" class="absolute h-1 bg-red-600 rounded-full" style="width: 0%"></div>
@@ -180,11 +172,41 @@
         const adTimer = document.getElementById('adTimer');
         const seekBar = document.getElementById('seekBar');
         const progressBar = document.getElementById('progressBar');
+        const controls = document.getElementById('controls');
 
         let isAdActive = false;
         let lastMinuteTriggered = -1;
+        let hideTimeout;
 
-        // Fungsi Fullscreen & Landscape Lock
+        // Logika hide kontrol
+        const hideControls = (delay = 3000) => {
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                if (!video.paused && !isAdActive) {
+                    controls.style.opacity = '0';
+                    container.style.cursor = 'none';
+                }
+            }, delay);
+        };
+
+        const showControls = () => {
+            controls.style.opacity = '1';
+            container.style.cursor = 'default';
+            hideControls();
+        };
+
+        // Inisialisasi: Tampilkan kontrol selama 10 detik di awal
+        window.onload = () => {
+            controls.style.opacity = '1';
+            hideControls(10000); // 10 detik pertama
+        };
+
+        container.onmousemove = showControls;
+        document.getElementById('interactionGuard').onclick = (e) => {
+            e.preventDefault();
+            showControls();
+        };
+
         async function toggleFullscreen() {
             try {
                 if (!document.fullscreenElement) {
@@ -201,13 +223,11 @@
 
         video.ontimeupdate = () => {
             if (isAdActive) return;
-            
             const p = (video.currentTime / video.duration) * 100;
             seekBar.value = p || 0;
             progressBar.style.width = (p || 0) + '%';
             document.getElementById('currTime').textContent = formatTime(video.currentTime);
 
-            // LOGIKA IKLAN TIAP MENIT (60 DETIK)
             let currentMinute = Math.floor(video.currentTime / 60);
             if (currentMinute > 0 && currentMinute !== lastMinuteTriggered) {
                 triggerAd();
@@ -219,6 +239,7 @@
             isAdActive = true;
             video.pause();
             midRollOverlay.style.display = 'flex';
+            controls.style.opacity = '0'; // Sembunyikan kontrol saat iklan
             let sisa = 10;
             adTimer.textContent = sisa;
             
@@ -230,6 +251,7 @@
                     midRollOverlay.style.display = 'none';
                     isAdActive = false;
                     video.play();
+                    showControls(); // Munculkan kembali kontrol setelah iklan
                 }
             }, 1000);
         }
@@ -248,6 +270,7 @@
             video.paused ? video.play() : video.pause();
             document.getElementById('playIcon').setAttribute('data-lucide', video.paused ? 'play' : 'pause');
             lucide.createIcons();
+            showControls();
         };
 
         document.getElementById('muteBtn').onclick = (e) => {
@@ -255,34 +278,14 @@
             video.muted = !video.muted;
             document.getElementById('volIcon').setAttribute('data-lucide', video.muted ? 'volume-x' : 'volume-2');
             lucide.createIcons();
+            showControls();
         };
 
         document.getElementById('fsBtn').onclick = (e) => {
             e.stopPropagation();
             toggleFullscreen();
         };
-
-        let hideTimeout;
-        const showControls = () => {
-            document.getElementById('controls').style.opacity = '1';
-            container.style.cursor = 'default';
-            clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(() => {
-                if (!video.paused) {
-                    document.getElementById('controls').style.opacity = '0';
-                    container.style.cursor = 'none';
-                }
-            }, 3000);
-        };
-
-        container.onmousemove = showControls;
-        document.getElementById('interactionGuard').onclick = (e) => {
-            e.preventDefault();
-            showControls();
-        };
     </script>
-</body>
-</html>
 <!-- === HISTATS === -->
 <script type="text/javascript">
 var _Hasync = _Hasync || [];
