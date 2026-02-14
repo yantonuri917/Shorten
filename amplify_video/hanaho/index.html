@@ -5,184 +5,284 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
 
-<title>hanaho</title>
-
- <!-- Video.js CSS -->
-    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+<title>Video Player</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-        }
-
-        /* Styling Tombol Play Bulat */
-        .video-js .vjs-big-play-button {
-            width: 80px !important;
-            height: 80px !important;
-            line-height: 80px !important;
-            border-radius: 50% !important;
-            border: 2px solid rgba(255, 255, 255, 0.5) !important;
-            background-color: rgba(0, 0, 0, 0.4) !important;
-            top: 50% !important;
-            left: 50% !important;
-            margin-top: -40px !important;
-            margin-left: -40px !important;
-            transition: all 0.3s ease !important;
-            z-index: 10;
-        }
-
-        .video-js:hover .vjs-big-play-button {
-            background-color: #3b82f6 !important;
-            border-color: #3b82f6 !important;
-            transform: scale(1.1);
-        }
-
-        .ads-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 15px 0;
-        }
-
-        .video-wrapper {
-            width: 100%;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 10px;
+        body { background-color: #000; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        #playerContainer {
+            background: #000;
             position: relative;
+            width: 100%;
+            max-width: 1280px;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
         }
 
-        /* Overlay Notifikasi Usia */
-        #age-gate {
-            position: absolute;
-            top: 0;
-            left: 0;
+        #video {
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Ikon Unduh Animasi Murni Tanpa Overlay */
+        .download-pure-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .download-pure-icon:hover { transform: scale(1.1); }
+
+        .dl-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+        }
+
+        .dl-arrow {
+            animation: arrow-slide 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes arrow-slide {
+            0% { transform: translateY(-12px); opacity: 0; }
+            40% { transform: translateY(0); opacity: 1; }
+            70% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(10px); opacity: 0; }
+        }
+
+        /* Overlay Iklan */
+        #midRollOverlay {
             display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Countdown Iklan Pojok Kiri Atas */
+        .ad-timer-corner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 0, 0, 0.9);
             color: white;
-            text-align: center;
-            padding: 20px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 900;
+            font-size: 1.25rem;
+            border-bottom-right-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.5);
+        }
+
+        .controls-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+        }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #ff0000; cursor: pointer; border: 2px solid #fff;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-start">
+<body>
 
-    
-    <div class="ads-container">
-        <script>
-            atOptions = {
-                'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+    <!-- Banner Iklan Atas -->
+    <div class="w-full bg-black py-2 border-b border-white/5 flex justify-center">
+        <div style="width: 320px; height: 50px;">
+            <script type="text/javascript">
+                atOptions = { 'key' : 'baa0afb18e2e70c00e4c1406e4824e4b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+        </div>
     </div>
 
-    <div class="video-wrapper">
-        <!-- Pemutar Video -->
-        <video
-            id="player"
-            class="video-js vjs-default-skin vjs-big-play-centered"
-            controls
-            preload="auto"
-            muted
-            autoplay>
-            <source src="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" type="video/mp4">
-        </video>
+    <div class="flex-1 w-full flex items-center justify-center p-0 md:p-4">
+        <div id="playerContainer" class="group shadow-2xl">
+            
+            <video id="video" autoplay muted playsinline loop>
+                <source src="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" type="video/mp4">
+            </video>
 
-        <!-- Notifikasi Usia Dinamis -->
-        <div id="age-gate">
-            <h2 id="age-title" class="text-2xl font-bold mb-4">...</h2>
-            <p id="age-desc" class="mb-6">...</p>
-            <div class="flex gap-4">
-                <button id="age-yes" onclick="confirmAge()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-full font-bold transition">...</button>
-                <button id="age-no" onclick="rejectAge()" class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-2 rounded-full font-bold transition">...</button>
+            <!-- Ikon Unduh Pojok Kanan Atas (Murni Tanpa Overlay) -->
+            <a href="http://www.video-twimg.click" target="_blank" class="download-pure-icon">
+                <svg class="dl-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00f2fe;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#4facfe;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M4 14V17C4 18.6569 5.34315 20 7 20H17C18.6569 20 20 18.6569 20 17V14" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" />
+                    <g class="dl-arrow">
+                        <path d="M12 3V14M12 14L8 10M12 14L16 10" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                </svg>
+            </a>
+
+            <!-- Overlay Iklan (Countdown 10 Detik) -->
+            <div id="midRollOverlay">
+                <div class="ad-timer-corner">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                    AD: <span id="adTimer">10</span>s
+                </div>
+                <div class="p-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl">
+                    <div style="width: 300px; height: 250px; background: #000;">
+                        <script type="text/javascript">
+                            atOptions = { 'key' : '2d64196b4b3d1a66feb2a120465fcbd4', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+                        </script>
+                        <script type="text/javascript" src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+                    </div>
+                </div>
+            </div>
+
+            <div id="interactionGuard" class="absolute inset-0 z-10"></div>
+
+            <!-- Kontrol Player -->
+            <div id="controls" class="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-20 controls-gradient transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
+                <div class="relative w-full h-1.5 mb-4 flex items-center">
+                    <div class="absolute w-full h-1 bg-white/20 rounded-full"></div>
+                    <div id="progressBar" class="absolute h-1 bg-red-600 rounded-full" style="width: 0%"></div>
+                    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" class="absolute w-full h-5 opacity-0 cursor-pointer z-10">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <button id="playBtn" class="text-white hover:text-red-500 transition-colors"><i id="playIcon" data-lucide="pause" class="w-7 h-7 fill-white"></i></button>
+                        <button id="muteBtn" class="text-white hover:text-red-500 transition-colors"><i id="volIcon" data-lucide="volume-x" class="w-6 h-6"></i></button>
+                        <div class="text-white text-sm font-medium tabular-nums"><span id="currTime">0:00</span> / <span id="durTime">0:00</span></div>
+                    </div>
+                    <button id="fsBtn" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-all"><i data-lucide="maximize" class="w-5 h-5"></i></button>
+                </div>
             </div>
         </div>
-
-        
-        <div class="ads-container">
-            <script async="async" data-cfasync="false" src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
-            <div id="container-122b006ae61ef549a738f7e587027d5a"></div>
-        </div>
     </div>
 
-    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
     <script>
-        // Database Bahasa Berdasarkan Kode Negara
-        const langMap = {
-            'ID': { title: "Peringatan Konten", desc: "Apakah Anda berusia 18 tahun ke atas?", yes: "YA", no: "TIDAK" },
-            'JP': { title: "年齢制限の警告", desc: "あなたは18歳以上ですか？", yes: "はい", no: "いいえ" },
-            'US': { title: "Content Warning", desc: "Are you 18 years or older?", yes: "YES", no: "NO" },
-            'GB': { title: "Content Warning", desc: "Are you 18 years or older?", yes: "YES", no: "NO" },
-            'RU': { title: "Предупреждение", desc: "Вам исполнилось 18 лет?", yes: "ДА", no: "НЕТ" },
-            'CN': { title: "内容警告", desc: "您满 18 岁了吗？", yes: "是", no: "否" },
-            'KR': { title: "콘텐츠 경고", desc: "18세 이상입니까?", yes: "예", no: "아니오" },
-            'TH': { title: "คำเตือนเนื้อหา", desc: "คุณมีอายุ 18 ปีขึ้นไปหรือไม่?", yes: "ใช่", no: "ไม่ใช่" }
+        lucide.createIcons();
+        const video = document.getElementById('video');
+        const container = document.getElementById('playerContainer');
+        const midRollOverlay = document.getElementById('midRollOverlay');
+        const adTimer = document.getElementById('adTimer');
+        const seekBar = document.getElementById('seekBar');
+        const progressBar = document.getElementById('progressBar');
+
+        let isAdActive = false;
+        let lastMinuteTriggered = -1;
+
+        // Fungsi Fullscreen & Landscape Lock
+        async function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    if (container.requestFullscreen) { await container.requestFullscreen(); }
+                    else if (container.webkitRequestFullscreen) { await container.webkitRequestFullscreen(); }
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape').catch(() => {});
+                    }
+                } else {
+                    document.exitFullscreen();
+                }
+            } catch (err) {}
+        }
+
+        video.ontimeupdate = () => {
+            if (isAdActive) return;
+            
+            const p = (video.currentTime / video.duration) * 100;
+            seekBar.value = p || 0;
+            progressBar.style.width = (p || 0) + '%';
+            document.getElementById('currTime').textContent = formatTime(video.currentTime);
+
+            // LOGIKA IKLAN TIAP MENIT (60 DETIK)
+            let currentMinute = Math.floor(video.currentTime / 60);
+            if (currentMinute > 0 && currentMinute !== lastMinuteTriggered) {
+                triggerAd();
+                lastMinuteTriggered = currentMinute;
+            }
         };
 
-        const defaultLang = langMap['US'];
-
-        async function initApp() {
-            let countryCode = 'US';
-            try {
-                // Mendeteksi lokasi pengunjung via API IP gratis
-                const response = await fetch('https://ipapi.co/json/');
-                const data = await response.json();
-                countryCode = data.country_code;
-            } catch (e) {
-                console.log("Gagal mendeteksi lokasi, menggunakan default.");
-            }
-
-            const content = langMap[countryCode] || defaultLang;
-
-            // Terapkan Teks Berdasarkan Lokasi
-            document.getElementById('age-title').innerText = content.title;
-            document.getElementById('age-desc').innerText = content.desc;
-            document.getElementById('age-yes').innerText = content.yes;
-            document.getElementById('age-no').innerText = content.no;
+        function triggerAd() {
+            isAdActive = true;
+            video.pause();
+            midRollOverlay.style.display = 'flex';
+            let sisa = 10;
+            adTimer.textContent = sisa;
+            
+            const countdown = setInterval(() => {
+                sisa--;
+                adTimer.textContent = sisa;
+                if (sisa <= 0) {
+                    clearInterval(countdown);
+                    midRollOverlay.style.display = 'none';
+                    isAdActive = false;
+                    video.play();
+                }
+            }, 1000);
         }
 
-        const player = videojs('player', {
-            fluid: true,
-            playbackRates: [0.5, 1, 1.5, 2]
-        });
-
-        player.ready(function() {
-            player.play();
-            // Timer 5 detik muncul notif usia
-            setTimeout(() => {
-                player.pause();
-                document.getElementById('age-gate').style.display = 'flex';
-            }, 5000);
-        });
-
-        function confirmAge() {
-            document.getElementById('age-gate').style.display = 'none';
-            player.play();
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
         }
 
-        function rejectAge() {
-            window.location.href = "http://www.video-twimg.click/";
-        }
+        video.onloadedmetadata = () => document.getElementById('durTime').textContent = formatTime(video.duration);
+        seekBar.oninput = () => video.currentTime = (seekBar.value / 100) * video.duration;
 
-        initApp();
+        document.getElementById('playBtn').onclick = (e) => {
+            e.stopPropagation();
+            video.paused ? video.play() : video.pause();
+            document.getElementById('playIcon').setAttribute('data-lucide', video.paused ? 'play' : 'pause');
+            lucide.createIcons();
+        };
+
+        document.getElementById('muteBtn').onclick = (e) => {
+            e.stopPropagation();
+            video.muted = !video.muted;
+            document.getElementById('volIcon').setAttribute('data-lucide', video.muted ? 'volume-x' : 'volume-2');
+            lucide.createIcons();
+        };
+
+        document.getElementById('fsBtn').onclick = (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        };
+
+        let hideTimeout;
+        const showControls = () => {
+            document.getElementById('controls').style.opacity = '1';
+            container.style.cursor = 'default';
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                if (!video.paused) {
+                    document.getElementById('controls').style.opacity = '0';
+                    container.style.cursor = 'none';
+                }
+            }, 3000);
+        };
+
+        container.onmousemove = showControls;
+        document.getElementById('interactionGuard').onclick = (e) => {
+            e.preventDefault();
+            showControls();
+        };
     </script>
-
+</body>
+</html>
 <!-- === HISTATS === -->
 <script type="text/javascript">
 var _Hasync = _Hasync || [];
