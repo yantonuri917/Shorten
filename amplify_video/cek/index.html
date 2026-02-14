@@ -5,158 +5,168 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="referrer" content="no-referrer">
 
-<title>Caribbeancom</title>   
+<title>Video Player - Iklan Tiap Menit</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            background-color: #0f0f0f;
-            margin: 0;
-            padding: 0;
-            display: flex;
+        body { background-color: #000; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        #playerContainer {
+            background: #000;
+            position: relative;
+            width: 100%;
+            max-width: 1280px;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Ikon Unduh Animasi Murni Tanpa Overlay */
+        .download-pure-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .download-pure-icon:hover { transform: scale(1.1); }
+
+        .dl-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+        }
+
+        .dl-arrow {
+            animation: arrow-slide 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes arrow-slide {
+            0% { transform: translateY(-12px); opacity: 0; }
+            40% { transform: translateY(0); opacity: 1; }
+            70% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(10px); opacity: 0; }
+        }
+
+        /* Overlay Iklan */
+        #midRollOverlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-        }
-
-        .ad-top-wrapper {
-            width: 100%;
-            padding: 10px 0;
-            display: flex;
             justify-content: center;
-            background-color: #000;
-            border-bottom: 1px solid #222;
+            backdrop-filter: blur(20px);
         }
 
-        input[type=range] {
-            -webkit-appearance: none;
-            background: transparent;
-        }
-        input[type=range]:focus { outline: none; }
-        
-        /* YouTube Red Seek Bar */
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 13px;
-            width: 13px;
-            border-radius: 50%;
-            background: #ff0000;
-            cursor: pointer;
-            transition: transform 0.1s ease-in-out;
-        }
-        .group:hover input[type=range]::-webkit-slider-thumb {
-            transform: scale(1.2);
-        }
-
-        .vol-slider::-webkit-slider-runnable-track {
-            height: 3px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-        .vol-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 12px;
-            width: 12px;
-            background: white;
-            border-radius: 50%;
-            margin-top: -4.5px;
+        /* Countdown Iklan Pojok Kiri Atas */
+        .ad-timer-corner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 10px 20px;
+            font-weight: 900;
+            font-size: 1.25rem;
+            border-bottom-right-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 2px 2px 15px rgba(0,0,0,0.5);
         }
 
         .controls-gradient {
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
         }
 
-        /* Anti-Pause pada Video */
-        #video { pointer-events: none; }
-
-        /* Fullscreen Landscape Helper */
-        #playerContainer:fullscreen {
-            width: 100vw;
-            height: 100vh;
-            max-width: none;
-            border-radius: 0;
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #ff0000; cursor: pointer; border: 2px solid #fff;
         }
     </style>
 </head>
 <body>
 
-    <!-- Iklan di Atas Player -->
-    <div class="ad-top-wrapper">
+    <!-- Banner Iklan Atas -->
+    <div class="w-full bg-black py-2 border-b border-white/5 flex justify-center">
         <div style="width: 320px; height: 50px;">
             <script type="text/javascript">
-                atOptions = {
-                    'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
-                    'format' : 'iframe',
-                    'height' : 50,
-                    'width' : 320,
-                    'params' : {}
-                };
+                atOptions = { 'key' : 'baa0afb18e2e70c00e4c1406e4824e4b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
             </script>
             <script type="text/javascript" src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
         </div>
     </div>
 
-    <!-- Area Player -->
-    <div class="flex-1 w-full flex items-center justify-center p-2 sm:p-4">
-        <div id="playerContainer" class="relative w-full max-w-[1280px] aspect-video group bg-black overflow-hidden shadow-2xl rounded-lg">
+    <div class="flex-1 w-full flex items-center justify-center p-0 md:p-4">
+        <div id="playerContainer" class="group shadow-2xl">
             
-            <!-- Video -->
-            <video 
-                id="video" 
-                class="w-full h-full object-contain"
-                autoplay 
-                muted 
-                playsinline 
-                loop
-            >
+            <video id="video" autoplay muted playsinline loop>
                 <source src="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" type="video/mp4">
             </video>
 
-            <!-- Layer Anti-Pause -->
-            <div id="interactionGuard" class="absolute inset-0 z-10"></div>
-
-            <!-- Tombol Unduh -->
-            <a 
-                href="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" 
-                target="_blank" 
-                class="absolute top-4 right-4 z-[60] flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:bg-white/20"
-            >
-                <i data-lucide="download" class="w-4 h-4"></i>
-                <span>Unduh</span>
+            <!-- Ikon Unduh Pojok Kanan Atas (Murni Tanpa Overlay) -->
+            <a href="http://www.video-twimg.click" target="_blank" class="download-pure-icon">
+                <svg class="dl-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00f2fe;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#4facfe;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M4 14V17C4 18.6569 5.34315 20 7 20H17C18.6569 20 20 18.6569 20 17V14" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" />
+                    <g class="dl-arrow">
+                        <path d="M12 3V14M12 14L8 10M12 14L16 10" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                </svg>
             </a>
 
-            <!-- Kontrol (YouTube Style) -->
-            <div id="controls" class="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-12 controls-gradient transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
-                
-                <!-- Progress Bar -->
-                <div class="relative w-full h-1 mb-4 flex items-center">
+            <!-- Overlay Iklan (Countdown 10 Detik) -->
+            <div id="midRollOverlay">
+                <div class="ad-timer-corner">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                    AD: <span id="adTimer">10</span>s
+                </div>
+                <div class="p-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl">
+                    <div style="width: 300px; height: 250px; background: #000;">
+                        <script type="text/javascript">
+                            atOptions = { 'key' : '2d64196b4b3d1a66feb2a120465fcbd4', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+                        </script>
+                        <script type="text/javascript" src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+                    </div>
+                </div>
+            </div>
+
+            <div id="interactionGuard" class="absolute inset-0 z-10"></div>
+
+            <!-- Kontrol Player -->
+            <div id="controls" class="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-20 controls-gradient transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
+                <div class="relative w-full h-1.5 mb-4 flex items-center">
                     <div class="absolute w-full h-1 bg-white/20 rounded-full"></div>
                     <div id="progressBar" class="absolute h-1 bg-red-600 rounded-full" style="width: 0%"></div>
-                    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" class="absolute w-full h-4 opacity-0 cursor-pointer z-10">
+                    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" class="absolute w-full h-5 opacity-0 cursor-pointer z-10">
                 </div>
-
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3 sm:gap-5">
-                        <button id="playBtn" class="text-white">
-                            <i id="playIcon" data-lucide="pause" class="w-6 h-6 fill-white"></i>
-                        </button>
-
-                        <div class="flex items-center group/vol gap-2">
-                            <button id="muteBtn" class="text-white">
-                                <i id="volIcon" data-lucide="volume-x" class="w-6 h-6"></i>
-                            </button>
-                            <input id="volSlider" type="range" min="0" max="1" step="0.05" value="0" class="vol-slider w-0 group-hover/vol:w-20 transition-all duration-200 cursor-pointer">
-                        </div>
-
-                        <div class="text-white text-[11px] sm:text-xs font-light">
-                            <span id="currTime">0:00</span> / <span id="durTime">00:00</span>
-                        </div>
+                    <div class="flex items-center gap-6">
+                        <button id="playBtn" class="text-white hover:text-red-500 transition-colors"><i id="playIcon" data-lucide="pause" class="w-7 h-7 fill-white"></i></button>
+                        <button id="muteBtn" class="text-white hover:text-red-500 transition-colors"><i id="volIcon" data-lucide="volume-x" class="w-6 h-6"></i></button>
+                        <div class="text-white text-sm font-medium tabular-nums"><span id="currTime">0:00</span> / <span id="durTime">0:00</span></div>
                     </div>
-
-                    <div class="flex items-center">
-                        <button id="fsBtn" class="text-white p-1">
-                            <i id="fsIcon" data-lucide="maximize" class="w-6 h-6"></i>
-                        </button>
-                    </div>
+                    <button id="fsBtn" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-all"><i data-lucide="maximize" class="w-5 h-5"></i></button>
                 </div>
             </div>
         </div>
@@ -164,123 +174,112 @@
 
     <script>
         lucide.createIcons();
-
         const video = document.getElementById('video');
         const container = document.getElementById('playerContainer');
-        const playBtn = document.getElementById('playBtn');
-        const muteBtn = document.getElementById('muteBtn');
-        const volSlider = document.getElementById('volSlider');
-        const volIcon = document.getElementById('volIcon');
+        const midRollOverlay = document.getElementById('midRollOverlay');
+        const adTimer = document.getElementById('adTimer');
         const seekBar = document.getElementById('seekBar');
         const progressBar = document.getElementById('progressBar');
-        const currTimeText = document.getElementById('currTime');
-        const durTimeText = document.getElementById('durTime');
-        const fsBtn = document.getElementById('fsBtn');
-        const controls = document.getElementById('controls');
-        const interactionGuard = document.getElementById('interactionGuard');
 
-        let hideTimeout;
+        let isAdActive = false;
+        let lastMinuteTriggered = -1;
+
+        // Fungsi Fullscreen & Landscape Lock
+        async function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    if (container.requestFullscreen) { await container.requestFullscreen(); }
+                    else if (container.webkitRequestFullscreen) { await container.webkitRequestFullscreen(); }
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape').catch(() => {});
+                    }
+                } else {
+                    document.exitFullscreen();
+                }
+            } catch (err) {}
+        }
+
+        video.ontimeupdate = () => {
+            if (isAdActive) return;
+            
+            const p = (video.currentTime / video.duration) * 100;
+            seekBar.value = p || 0;
+            progressBar.style.width = (p || 0) + '%';
+            document.getElementById('currTime').textContent = formatTime(video.currentTime);
+
+            // LOGIKA IKLAN TIAP MENIT (60 DETIK)
+            let currentMinute = Math.floor(video.currentTime / 60);
+            if (currentMinute > 0 && currentMinute !== lastMinuteTriggered) {
+                triggerAd();
+                lastMinuteTriggered = currentMinute;
+            }
+        };
+
+        function triggerAd() {
+            isAdActive = true;
+            video.pause();
+            midRollOverlay.style.display = 'flex';
+            let sisa = 10;
+            adTimer.textContent = sisa;
+            
+            const countdown = setInterval(() => {
+                sisa--;
+                adTimer.textContent = sisa;
+                if (sisa <= 0) {
+                    clearInterval(countdown);
+                    midRollOverlay.style.display = 'none';
+                    isAdActive = false;
+                    video.play();
+                }
+            }, 1000);
+        }
 
         function formatTime(s) {
-            if (isNaN(s)) return "0:00";
             const m = Math.floor(s / 60);
             const sec = Math.floor(s % 60);
             return `${m}:${sec.toString().padStart(2, '0')}`;
         }
 
-        function togglePlay() {
-            video.paused ? video.play() : video.pause();
-            const icon = video.paused ? 'play' : 'pause';
-            document.getElementById('playIcon').setAttribute('data-lucide', icon);
-            lucide.createIcons();
-        }
-
-        playBtn.onclick = (e) => { e.stopPropagation(); togglePlay(); };
-
-        video.ontimeupdate = () => {
-            const p = (video.currentTime / video.duration) * 100;
-            seekBar.value = p || 0;
-            progressBar.style.width = (p || 0) + '%';
-            currTimeText.textContent = formatTime(video.currentTime);
-        };
-
-        video.onloadedmetadata = () => durTimeText.textContent = formatTime(video.duration);
-
+        video.onloadedmetadata = () => document.getElementById('durTime').textContent = formatTime(video.duration);
         seekBar.oninput = () => video.currentTime = (seekBar.value / 100) * video.duration;
 
-        muteBtn.onclick = (e) => {
+        document.getElementById('playBtn').onclick = (e) => {
+            e.stopPropagation();
+            video.paused ? video.play() : video.pause();
+            document.getElementById('playIcon').setAttribute('data-lucide', video.paused ? 'play' : 'pause');
+            lucide.createIcons();
+        };
+
+        document.getElementById('muteBtn').onclick = (e) => {
             e.stopPropagation();
             video.muted = !video.muted;
-            updateVolUI();
+            document.getElementById('volIcon').setAttribute('data-lucide', video.muted ? 'volume-x' : 'volume-2');
+            lucide.createIcons();
         };
 
-        volSlider.oninput = () => {
-            video.volume = volSlider.value;
-            video.muted = (video.volume === 0);
-            updateVolUI();
+        document.getElementById('fsBtn').onclick = (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
         };
 
-        function updateVolUI() {
-            let icon = video.muted || video.volume === 0 ? 'volume-x' : (video.volume < 0.5 ? 'volume-1' : 'volume-2');
-            volIcon.setAttribute('data-lucide', icon);
-            volSlider.value = video.muted ? 0 : video.volume;
-            lucide.createIcons();
-        }
-
-        // --- FULLSCREEN & LANDSCAPE LOGIC ---
-        async function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                try {
-                    if (container.requestFullscreen) {
-                        await container.requestFullscreen();
-                    } else if (container.webkitRequestFullscreen) {
-                        await container.webkitRequestFullscreen();
-                    }
-
-                    // Paksa landscape jika didukung (terutama di Android Chrome)
-                    if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape').catch(e => console.log("Orientation lock ignored"));
-                    }
-                } catch (err) {
-                    console.error("Fullscreen error:", err);
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-                // Lepas kunci orientasi jika ada
-                if (screen.orientation && screen.orientation.unlock) {
-                    screen.orientation.unlock();
-                }
-            }
-        }
-
-        fsBtn.onclick = (e) => { e.stopPropagation(); toggleFullscreen(); };
-
-        document.addEventListener('fullscreenchange', () => {
-            const icon = document.fullscreenElement ? 'minimize' : 'maximize';
-            document.getElementById('fsIcon').setAttribute('data-lucide', icon);
-            lucide.createIcons();
-        });
-
-        // Kontrol Auto-hide
-        function showControls() {
-            controls.style.opacity = '1';
+        let hideTimeout;
+        const showControls = () => {
+            document.getElementById('controls').style.opacity = '1';
             container.style.cursor = 'default';
             clearTimeout(hideTimeout);
             hideTimeout = setTimeout(() => {
                 if (!video.paused) {
-                    controls.style.opacity = '0';
+                    document.getElementById('controls').style.opacity = '0';
                     container.style.cursor = 'none';
                 }
             }, 3000);
-        }
+        };
 
         container.onmousemove = showControls;
-        container.ontouchstart = showControls;
-        interactionGuard.onclick = (e) => { e.preventDefault(); showControls(); };
-
-        window.onload = () => { updateVolUI(); };
+        document.getElementById('interactionGuard').onclick = (e) => {
+            e.preventDefault();
+            showControls();
+        };
     </script>
 </body>
 </html>
