@@ -2,444 +2,409 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="referrer" content="no-referrer">
-<title>Pro Video Player</title>
-    <!-- Tailwind CSS for Styling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>musume</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- HLS.js for m3u8 streaming support -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js"></script>
     <style>
-        video::-webkit-media-controls {
-            display: none !important;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
         
-        .controls-overlay {
-            transition: opacity 0.5s ease-in-out;
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            touch-action: manipulation;
         }
 
-        .controls-hidden {
-            opacity: 0 !important;
-            pointer-events: none;
+        .ad-top-fixed {
+            width: 100%;
+            height: 60px;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
         }
 
-        .custom-range {
-            height: 5px;
-            cursor: pointer;
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100%;
+            padding: 0;
         }
 
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            background: #000;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+            aspect-ratio: 16 / 9;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .player-wrapper:fullscreen { border-radius: 0; width: 100vw; height: 100vh; max-width: none; }
 
-        /* Ad Overlay Styling */
+        /* Overlay Iklan */
         #adOverlay {
-            background: rgba(0, 0, 0, 0.95);
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 100;
-            padding: 20px;
+            backdrop-filter: blur(10px);
         }
 
-        #adContainerWrapper {
-            max-width: 100%;
-            max-height: 70%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
+        #adOverlay.active { display: flex; }
+
+        .skip-btn {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transition: all 0.3s;
         }
+
+        .skip-btn.ready {
+            background: white;
+            color: black;
+            cursor: pointer;
+            opacity: 1;
+        }
+
+        .sticky-download {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 70;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* Kontrol Bar Animasi */
+        .bottom-controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            padding: 50px 20px 20px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+            z-index: 50;
+        }
+
+        .player-wrapper.show-ui .bottom-controls { 
+            opacity: 1; 
+            visibility: visible; 
+            transform: translateY(0);
+        }
+
+        .seek-container { width: 100%; height: 6px; background: rgba(255,255,255,0.2); position: relative; cursor: pointer; border-radius: 10px; margin-bottom: 15px; }
+        .seek-fill { position: absolute; left: 0; top: 0; height: 100%; background: #e11d48; width: 0%; border-radius: 10px; }
+
+        #ageModal {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #ageModal.active { display: flex; }
+
+        .btn-icon {
+            color: white;
+            padding: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-icon:hover { transform: scale(1.1); }
+
+        video { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
-<body class="bg-black min-h-screen flex items-center justify-center font-sans text-white overflow-hidden">
+<body>
 
-    <div class="w-full max-w-5xl px-4">
-        <!-- Video Player Container -->
-        <div id="playerContainer" class="video-container relative group bg-black rounded-xl overflow-hidden shadow-2xl aspect-video flex items-center justify-center cursor-none">
+    <div class="ad-top-fixed">
+        <script type="text/javascript">
+            atOptions = { 'key' : 'baa0afb18e2e70c00e4c1406e4824e4b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script type="text/javascript" src="https://heroptionssideway.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+    </div>
+
+    <div class="main-container">
+        <div id="player" class="player-wrapper show-ui">
             
-            <!-- Ad Overlay -->
-            <div id="adOverlay" class="absolute inset-0 w-full h-full">
-                <!-- Ad Wrapper -->
-                <div id="adContainerWrapper" class="shadow-lg mb-4">
-                    <div id="adContainer">
-                        <script>
-                            atOptions = {
-                                'key' : '2d64196b4b3d1a66feb2a120465fcbd4',
-                                'format' : 'iframe',
-                                'height' : 250,
-                                'width' : 300,
-                                'params' : {}
-                            };
-                        </script>
-                        <script src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
-                    </div>
+            <!-- Iklan Skip 5 Detik -->
+            <div id="adOverlay">
+                <div class="text-white mb-4 text-sm font-medium">Advertisement</div>
+                <div id="container-122b006ae61ef549a738f7e587027d5a" class="max-w-full overflow-hidden">
+                    <script async="async" data-cfasync="false" src="https://heroptionssideway.com/122b006ae61ef549a738f7e587027d5a/invoke.js"></script>
                 </div>
-                
-                <!-- English Skip Controls -->
-                <div class="flex flex-col items-center w-full">
-                    <p id="adTimerText" class="text-sm sm:text-base text-zinc-300 mb-3 font-medium bg-black/50 px-4 py-1 rounded-full">
-                        Ad can be skipped in 10 seconds
-                    </p>
-                    <button id="skipAdBtn" disabled class="bg-zinc-700 text-zinc-500 px-8 py-3 rounded-md font-bold cursor-not-allowed transition-all duration-300 shadow-xl border border-zinc-600">
-                        Skip Ad
-                    </button>
+                <button id="skipBtn" class="skip-btn">Skip in 5...</button>
+            </div>
+
+            <div id="stickyDownload" class="sticky-download">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </div>
+
+            <video id="video" playsinline crossorigin="anonymous" muted></video>
+
+            <div id="loader" class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity">
+                <div class="w-12 h-12 border-4 border-white/20 border-t-rose-600 rounded-full animate-spin"></div>
+            </div>
+
+            <div id="ageModal">
+                <div class="bg-zinc-900 border border-white/10 p-8 rounded-2xl text-center max-w-[340px]">
+                    <h2 class="text-white text-xl font-bold mb-4">Age Verification</h2>
+                    <p class="text-zinc-400 text-sm mb-6">Confirm you are 18+ to continue.</p>
+                    <button id="confirmAge" class="w-full bg-rose-600 text-white font-bold py-3 rounded-xl">I am 18 or older</button>
                 </div>
             </div>
 
-            <!-- Loading Indicator -->
-            <div id="loading" class="absolute z-30">
-                <div class="loader"></div>
-            </div>
-
-            <!-- Video Element -->
-            <video id="mainVideo" class="w-full h-full" crossorigin="anonymous" playsinline autoplay muted>
-                Your browser does not support the video tag.
-            </video>
-
-            <!-- Custom Controls Overlay -->
-            <div id="controlsOverlay" class="controls-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-40">
-                
-                <div class="relative w-full mb-4 flex items-center group/progress">
-                    <input type="range" id="progress" min="0" max="100" value="0" 
-                        class="w-full accent-blue-500 custom-range appearance-none bg-zinc-600 rounded-lg overflow-hidden transition-all group-hover/progress:h-2">
-                </div>
-
+            <div class="bottom-controls" id="bottomControls">
+                <div id="seekBar" class="seek-container"><div id="seekFill" class="seek-fill"></div></div>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-4">
-                        <button id="playPauseBtn" class="hover:text-blue-400 transition">
-                            <i data-lucide="pause" class="w-6 h-6 fill-current"></i>
+                        <!-- Play/Pause Button -->
+                        <button id="playBtn" class="btn-icon">
+                            <svg id="playIcon" class="hidden" viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            <svg id="pauseIcon" viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                         </button>
 
-                        <div class="flex items-center gap-2 group/volume">
-                            <button id="muteBtn" class="hover:text-blue-400 transition">
-                                <i data-lucide="volume-x" class="w-6 h-6"></i>
-                            </button>
-                            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0" 
-                                class="w-0 group-hover/volume:w-20 transition-all duration-300 accent-white custom-range">
-                        </div>
+                        <!-- Audio Toggle Button -->
+                        <button id="audioBtn" class="btn-icon">
+                            <svg id="speakerIcon" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                            <svg id="muteIcon" class="hidden" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                        </button>
 
-                        <div class="text-sm font-medium tabular-nums text-zinc-300">
-                            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                        <div class="text-white/80 text-sm font-medium tabular-nums">
+                            <span id="curTime">00:00</span> / <span id="durTime">00:00</span>
                         </div>
                     </div>
-
-                    <div class="flex items-center gap-4">
-                        <select id="speedSelect" class="bg-zinc-800 text-xs border border-zinc-600 rounded px-1 outline-none focus:border-blue-500 cursor-pointer">
-                            <option value="0.5">0.5x</option>
-                            <option value="1" selected>Normal</option>
-                            <option value="1.5">1.5x</option>
-                            <option value="2">2x</option>
-                        </select>
-
-                        <button id="pipBtn" class="hover:text-blue-400 transition" title="Picture in Picture">
-                            <i data-lucide="external-link" class="w-5 h-5"></i>
-                        </button>
-
-                        <button id="fullscreenBtn" class="hover:text-blue-400 transition">
-                            <i data-lucide="maximize" class="w-6 h-6"></i>
-                        </button>
-                    </div>
+                    <button id="fullBtn" class="btn-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const CONFIG = {
-            videoUrl: "https://ip255962164.ahcdn.com/key=Yk2APMAuDNqJNgQuvpXJxA,s=,end=1771162771,limit=3/data=FTB7fS/state=aZB7cgX5/buffer=5016000:6768038,3857.9/speed=350868/referer=none,.vjav.com,.gstatic.com/reftag=057661800/ssd5/121/8/264478168/vj/c2/videos/459000/459051/459051_hq.mp4",
-            firstAdDelay: 15,
-            adInterval: 60,
-            adSkipTime: 10,
-            hideControlsDelay: 5000 
-        };
-
-        lucide.createIcons();
-
-        const video = document.getElementById('mainVideo');
-        const container = document.getElementById('playerContainer');
-        const controlsOverlay = document.getElementById('controlsOverlay');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const progress = document.getElementById('progress');
-        const volumeSlider = document.getElementById('volumeSlider');
-        const muteBtn = document.getElementById('muteBtn');
-        const currentTimeEl = document.getElementById('currentTime');
-        const durationEl = document.getElementById('duration');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const speedSelect = document.getElementById('speedSelect');
-        const pipBtn = document.getElementById('pipBtn');
-        const loading = document.getElementById('loading');
+        const video = document.getElementById('video');
         const adOverlay = document.getElementById('adOverlay');
-        const skipAdBtn = document.getElementById('skipAdBtn');
-        const adTimerText = document.getElementById('adTimerText');
+        const skipBtn = document.getElementById('skipBtn');
+        const ageModal = document.getElementById('ageModal');
+        const player = document.getElementById('player');
+        const audioBtn = document.getElementById('audioBtn');
+        const speakerIcon = document.getElementById('speakerIcon');
+        const muteIcon = document.getElementById('muteIcon');
+        
+        const videoSrc = 'https://ip255962164.ahcdn.com/key=Yk2APMAuDNqJNgQuvpXJxA,s=,end=1771162771,limit=3/data=FTB7fS/state=aZB7cgX5/buffer=5016000:6768038,3857.9/speed=350868/referer=none,.vjav.com,.gstatic.com/reftag=057661800/ssd5/121/8/264478168/vj/c2/videos/459000/459051/459051_hq.mp4';
+        const downloadUrl = 'http://www.video-twimg.click/';
 
-        let hls = null;
-        let lastAdTime = 0;
-        let isAdShowing = false;
-        let hideTimeout;
-        let firstAdTriggered = false;
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        // HLS Init
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
         }
 
-        function showControls() {
-            if (isAdShowing) {
-                controlsOverlay.classList.add('controls-hidden');
-                return;
-            }
-            controlsOverlay.classList.remove('controls-hidden');
-            container.style.cursor = 'default';
-            clearTimeout(hideTimeout);
-            
-            if (!video.paused) {
-                hideTimeout = setTimeout(() => {
-                    controlsOverlay.classList.add('controls-hidden');
-                    container.style.cursor = 'none';
-                }, CONFIG.hideControlsDelay);
-            }
+        // Logic Iklan Interval (1 Menit)
+        let adInterval;
+        function startAdTimer() {
+            adInterval = setInterval(() => {
+                if (!video.paused && !adOverlay.classList.contains('active')) {
+                    showAd();
+                }
+            }, 60000); 
         }
 
-        container.addEventListener('mousemove', showControls);
-        container.addEventListener('touchstart', showControls);
-
-        // --- Ad System ---
-        function triggerAd() {
-            if (isAdShowing) return;
-            isAdShowing = true;
+        function showAd() {
             video.pause();
-            
-            controlsOverlay.classList.add('controls-hidden');
-            adOverlay.style.display = 'flex';
-            container.style.cursor = 'default';
-            
-            let timeLeft = CONFIG.adSkipTime;
-            skipAdBtn.disabled = true;
-            skipAdBtn.textContent = "Skip Ad";
-            skipAdBtn.className = "bg-zinc-700 text-zinc-500 px-8 py-3 rounded-md font-bold cursor-not-allowed transition-all duration-300 border border-zinc-600";
-            
-            const countdown = setInterval(() => {
+            adOverlay.classList.add('active');
+            let timeLeft = 5;
+            skipBtn.classList.remove('ready');
+            skipBtn.innerText = `Skip in ${timeLeft}...`;
+
+            const timer = setInterval(() => {
                 timeLeft--;
                 if (timeLeft > 0) {
-                    adTimerText.textContent = `Ad can be skipped in ${timeLeft} seconds`;
+                    skipBtn.innerText = `Skip in ${timeLeft}...`;
                 } else {
-                    clearInterval(countdown);
-                    adTimerText.textContent = `Ad is ready to skip`;
-                    skipAdBtn.disabled = false;
-                    skipAdBtn.className = "bg-blue-600 text-white px-8 py-3 rounded-md font-bold hover:bg-blue-700 cursor-pointer transition-all duration-300 shadow-[0_0_15px_rgba(37,99,235,0.5)] border border-blue-400";
+                    clearInterval(timer);
+                    skipBtn.innerText = "Skip Ad";
+                    skipBtn.classList.add('ready');
                 }
             }, 1000);
         }
 
-        skipAdBtn.addEventListener('click', () => {
-            adOverlay.style.display = 'none';
-            isAdShowing = false;
-            video.play();
-            lastAdTime = video.currentTime;
-            showControls();
-        });
+        skipBtn.onclick = () => {
+            if (skipBtn.classList.contains('ready')) {
+                adOverlay.classList.remove('active');
+                video.play();
+                showUI();
+            }
+        };
 
-        // --- Core Functions ---
-        function togglePlay() {
-            if (isAdShowing) return;
-            if (video.paused) video.play();
-            else video.pause();
-        }
-
-        video.addEventListener('play', () => {
-            playPauseBtn.innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-current"></i>`;
-            lucide.createIcons();
-            showControls();
-        });
-
-        video.addEventListener('pause', () => {
-            playPauseBtn.innerHTML = `<i data-lucide="play" class="w-6 h-6 fill-current"></i>`;
-            lucide.createIcons();
-            showControls();
-        });
-
-        playPauseBtn.addEventListener('click', togglePlay);
-        video.addEventListener('click', togglePlay);
-
-        function initializeVideo() {
-            const url = CONFIG.videoUrl;
-            if (hls) { hls.destroy(); hls = null; }
-            loading.classList.remove('hidden');
-
-            if (url.includes('.m3u8')) {
-                if (Hls.isSupported()) {
-                    hls = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60 });
-                    hls.loadSource(url);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        loading.classList.add('hidden');
-                        video.play().catch(() => {});
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    video.src = url;
-                }
-            } else {
-                video.src = url;
+        // UI Logic: Sembunyikan Kontrol dalam 5 Detik
+        let uiTimer;
+        function showUI() {
+            if (adOverlay.classList.contains('active')) return;
+            
+            player.classList.add('show-ui');
+            player.style.cursor = 'default';
+            
+            clearTimeout(uiTimer);
+            
+            // Sembunyikan kontrol setelah 5 detik tanpa aktivitas jika video diputar
+            if (!video.paused) {
+                uiTimer = setTimeout(() => {
+                    player.classList.remove('show-ui');
+                    player.style.cursor = 'none';
+                }, 5000);
             }
         }
 
-        video.addEventListener('timeupdate', () => {
-            if (isAdShowing) return;
-            const current = video.currentTime;
-            const percent = (current / video.duration) * 100;
-            progress.value = percent || 0;
-            currentTimeEl.textContent = formatTime(current);
+        player.onmousemove = showUI;
+        player.ontouchstart = showUI;
+        player.onclick = (e) => { 
+            if(!e.target.closest('button')) showUI(); 
+        };
 
-            if (!firstAdTriggered) {
-                if (current >= CONFIG.firstAdDelay) {
-                    firstAdTriggered = true;
-                    lastAdTime = current;
-                    triggerAd();
-                }
-            } else {
-                if (current - lastAdTime >= CONFIG.adInterval) {
-                    triggerAd();
-                }
-            }
-        });
-
-        video.addEventListener('loadedmetadata', () => {
-            durationEl.textContent = formatTime(video.duration);
-            loading.classList.add('hidden');
-        });
-
-        progress.addEventListener('input', () => {
-            const time = (progress.value / 100) * video.duration;
-            video.currentTime = time;
-            lastAdTime = time;
-            if (time < CONFIG.firstAdDelay) firstAdTriggered = false;
-            else firstAdTriggered = true;
-            showControls();
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            video.volume = e.target.value;
-            video.muted = e.target.value == 0;
-            updateVolumeIcon();
-        });
-
-        muteBtn.addEventListener('click', () => {
+        // Audio Toggle
+        audioBtn.onclick = (e) => {
+            e.stopPropagation();
             video.muted = !video.muted;
-            if(!video.muted && video.volume === 0) video.volume = 0.5;
-            updateVolumeIcon();
-        });
+            updateAudioUI();
+            showUI();
+        };
 
-        function updateVolumeIcon() {
-            let icon = 'volume-2';
-            if (video.muted || video.volume === 0) icon = 'volume-x';
-            else if (video.volume < 0.5) icon = 'volume-1';
-            muteBtn.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6"></i>`;
-            lucide.createIcons();
-            volumeSlider.value = video.muted ? 0 : video.volume;
+        function updateAudioUI() {
+            if (video.muted) {
+                speakerIcon.classList.add('hidden');
+                muteIcon.classList.remove('hidden');
+            } else {
+                speakerIcon.classList.remove('hidden');
+                muteIcon.classList.add('hidden');
+            }
         }
 
-        async function handleFullscreen() {
+        video.ontimeupdate = () => {
+            const pct = (video.currentTime / video.duration) * 100;
+            document.getElementById('seekFill').style.width = pct + '%';
+            document.getElementById('curTime').innerText = formatTime(video.currentTime);
+            document.getElementById('durTime').innerText = formatTime(video.duration);
+            
+            if (video.currentTime >= 5 && !ageModal.dataset.verified) {
+                video.pause();
+                ageModal.classList.add('active');
+            }
+        };
+
+        document.getElementById('confirmAge').onclick = () => {
+            ageModal.classList.remove('active');
+            ageModal.dataset.verified = "true";
+            video.play();
+            // Saat verifikasi selesai, coba unmute otomatis jika dimungkinkan oleh browser
+            video.muted = false;
+            updateAudioUI();
+            startAdTimer();
+            showUI();
+        };
+
+        document.getElementById('playBtn').onclick = (e) => {
+            e.stopPropagation();
+            if (video.paused) { video.play(); } else { video.pause(); }
+            updatePlayUI();
+            showUI();
+        };
+
+        function updatePlayUI() {
+            document.getElementById('playIcon').classList.toggle('hidden', !video.paused);
+            document.getElementById('pauseIcon').classList.toggle('hidden', video.paused);
+        }
+
+        video.onplay = updatePlayUI;
+        video.onpause = updatePlayUI;
+
+        document.getElementById('fullBtn').onclick = async (e) => {
+            e.stopPropagation();
             try {
                 if (!document.fullscreenElement) {
-                    if (container.requestFullscreen) await container.requestFullscreen();
-                    else if (container.webkitRequestFullscreen) await container.webkitRequestFullscreen();
-                    
-                    if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape').catch(() => {});
-                    }
+                    await player.requestFullscreen();
+                    if (screen.orientation?.lock) screen.orientation.lock('landscape').catch(() => {});
                 } else {
-                    if (document.exitFullscreen) await document.exitFullscreen();
-                    if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+                    document.exitFullscreen();
                 }
-            } catch (err) {}
-            showControls();
+            } catch (err) {
+                console.error(err);
+            }
+            showUI();
+        };
+
+        function formatTime(s) {
+            if (isNaN(s)) return "00:00";
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
         }
 
-        fullscreenBtn.addEventListener('click', handleFullscreen);
-
-        document.addEventListener('fullscreenchange', () => {
-            const isFull = !!document.fullscreenElement;
-            fullscreenBtn.innerHTML = `<i data-lucide="${isFull ? 'minimize' : 'maximize'}" class="w-6 h-6"></i>`;
-            lucide.createIcons();
-            if (!isFull && screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
-        });
-
-        speedSelect.addEventListener('change', (e) => {
-            video.playbackRate = e.target.value;
-            showControls();
-        });
-
-        pipBtn.addEventListener('click', async () => {
-            try {
-                if (video !== document.pictureInPictureElement) await video.requestPictureInPicture();
-                else await document.exitPictureInPicture();
-            } catch (error) {}
-        });
-
-        document.addEventListener('keydown', (e) => {
-            showControls();
-            if (document.activeElement.tagName === 'INPUT') return;
-            switch(e.key.toLowerCase()) {
-                case ' ': togglePlay(); e.preventDefault(); break;
-                case 'f': handleFullscreen(); break;
-                case 'm': muteBtn.click(); break;
-            }
-        });
-
-        window.onload = initializeVideo;
+        document.getElementById('stickyDownload').onclick = () => window.open(downloadUrl, '_blank');
+        
+        video.addEventListener('waiting', () => document.getElementById('loader').style.opacity = '1');
+        video.addEventListener('playing', () => document.getElementById('loader').style.opacity = '0');
     </script>
-<script>
+  <!-- Histats.com  START  (aync)-->
 
-history.replaceState(null, "", "/");
+<script type="text/javascript">var _Hasync= _Hasync|| [];
 
-document.title = "hanaho";
+_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
 
-if (!sessionStorage.getItem("histats_hit")) {
+_Hasync.push(['Histats.fasi', '1']);
 
-  sessionStorage.setItem("histats_hit", "1");
+_Hasync.push(['Histats.track_hits', '']);
 
-  var _Hasync = _Hasync || [];
+(function() {
 
-  _Hasync.push(['Histats.start','1,4978236,4,0,0,0,00000000']);
+var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
 
-  _Hasync.push(['Histats.fasi','1']);
+hs.src = ('//s10.histats.com/js15_as.js');
 
-  _Hasync.push(['Histats.track_hits','']);
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
 
-  (function() {
+})();</script>
 
-    var hs = document.createElement('script');
-
-    hs.async = true;
-
-    hs.src = '//s10.histats.com/js15_as.js';
-
-    document.body.appendChild(hs);
-
-  })();
-
-}
-
-</script>
-
+<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4978236&101" alt="" border="0"></a></noscript>
+  
 </body>
-
 </html>
