@@ -2,232 +2,157 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="referrer" content="no-referrer"><title>Pemutar Video Pro - Auto Landscape</title>
-    <!-- Tailwind CSS untuk Desain -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player Landscape Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Ikon Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- HLS.js untuk kompatibilitas streaming -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <style>
-        video::-webkit-media-controls {
-            display: none !important;
-        }
-        
-        .controls-overlay {
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .controls-hidden {
-            opacity: 0 !important;
-            pointer-events: none;
-        }
-
-        .custom-range {
-            height: 5px;
-            cursor: pointer;
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Iklan Overlay Tengah */
-        #adOverlay {
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
+        body {
+            background-color: #0f0f0f;
+            margin: 0;
+            padding: 0;
+            display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            z-index: 100;
-            padding: 20px;
+            min-height: 100vh;
         }
 
-        #adContainerWrapper {
-            max-width: 100%;
-            max-height: 70%;
+        .ad-top-wrapper {
+            width: 100%;
+            padding: 10px 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
+            background-color: #000;
+            border-bottom: 1px solid #222;
         }
 
-        /* Tombol download permanen di pojok */
-        .permanent-download {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            z-index: 50;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 0.5rem;
-            border-radius: 9999px;
-            backdrop-filter: blur(4px);
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
         }
+        input[type=range]:focus { outline: none; }
         
-        .permanent-download:hover {
-            background: rgba(59, 130, 246, 0.8);
-            transform: scale(1.1);
+        /* YouTube Red Seek Bar */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 13px;
+            width: 13px;
+            border-radius: 50%;
+            background: #ff0000;
+            cursor: pointer;
+            transition: transform 0.1s ease-in-out;
+        }
+        .group:hover input[type=range]::-webkit-slider-thumb {
+            transform: scale(1.2);
         }
 
-        /* Rotasi Video manual tetap ada */
-        #mainVideo {
-            transition: transform 0.3s ease-in-out;
-            max-width: 100%;
-            max-height: 100%;
+        .vol-slider::-webkit-slider-runnable-track {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .vol-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            background: white;
+            border-radius: 50%;
+            margin-top: -4.5px;
         }
 
-        /* Container untuk Banner Iklan Atas */
-        .top-banner-container {
-            width: 320px;
-            height: 50px;
-            margin: 0 auto 20px auto;
-            background: #111;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            border-radius: 4px;
+        .controls-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
         }
 
-        /* Animasi Transisi Fullscreen */
-        :fullscreen #playerContainer {
+        /* Anti-Pause pada Video */
+        #video { pointer-events: none; }
+
+        /* Fullscreen Landscape Helper */
+        #playerContainer:fullscreen {
             width: 100vw;
             height: 100vh;
+            max-width: none;
             border-radius: 0;
         }
     </style>
 </head>
-<body class="bg-black min-h-screen flex flex-col items-center justify-center font-sans text-white overflow-x-hidden">
+<body>
 
-    <!-- IKLAN BANNER ATAS (320x50) -->
-    <div class="top-banner-container">
-        <script>
-            atOptions = {
-                'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-            };
-        </script>
-        <script src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+    <!-- Iklan di Atas Player -->
+    <div class="ad-top-wrapper">
+        <div style="width: 320px; height: 50px;">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+                    'format' : 'iframe',
+                    'height' : 50,
+                    'width' : 320,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+        </div>
     </div>
 
-    <div class="w-full max-w-5xl px-4">
-        <!-- Container Pemutar Video -->
-        <div id="playerContainer" class="relative group bg-black rounded-xl overflow-hidden shadow-2xl aspect-video flex items-center justify-center cursor-none">
+    <!-- Area Player -->
+    <div class="flex-1 w-full flex items-center justify-center p-2 sm:p-4">
+        <div id="playerContainer" class="relative w-full max-w-[1280px] aspect-video group bg-black overflow-hidden shadow-2xl rounded-lg">
             
-            <!-- Tombol Download Permanen -->
-            <button id="downloadBtn" class="permanent-download" title="Unduh Video">
-                <i data-lucide="download" class="w-6 h-6 text-white"></i>
-            </button>
-
-            <!-- Pesan Error -->
-            <div id="errorMessage" class="hidden absolute z-50 bg-black/90 p-6 rounded-lg text-center max-w-xs">
-                <i data-lucide="alert-triangle" class="w-12 h-12 text-red-500 mx-auto mb-2"></i>
-                <p class="text-white font-bold">Gagal Memutar Video</p>
-                <p class="text-xs text-zinc-400 mt-2">Server video (Twitter) memblokir akses (CORS). Gunakan video lain jika tetap gagal.</p>
-                <button onclick="location.reload()" class="mt-4 text-xs bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded">Coba Lagi</button>
-            </div>
-
-            <!-- Iklan Overlay Tengah -->
-            <div id="adOverlay" class="absolute inset-0 w-full h-full">
-                <div id="adContainerWrapper">
-                    <div id="adContainer">
-                        <script>
-                            atOptions = {
-                                'key' : '2d64196b4b3d1a66feb2a120465fcbd4',
-                                'format' : 'iframe',
-                                'height' : 250,
-                                'width' : 300,
-                                'params' : {}
-                            };
-                        </script>
-                        <script src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
-                    </div>
-                </div>
-                
-                <div class="flex flex-col items-center w-full mt-4">
-                    <p id="adTimerText" class="text-sm text-zinc-300 mb-3 bg-black/50 px-4 py-1 rounded-full">
-                        Iklan dapat dilewati dalam 10 detik
-                    </p>
-                    <button id="skipAdBtn" disabled class="bg-zinc-700 text-zinc-500 px-8 py-3 rounded-md font-bold cursor-not-allowed transition-all duration-300">
-                        Lewati Iklan
-                    </button>
-                </div>
-            </div>
-
-            <!-- Indikator Loading -->
-            <div id="loading" class="absolute z-30">
-                <div class="loader"></div>
-            </div>
-
-            <!-- Elemen Video -->
-            <video id="mainVideo" class="w-full h-full object-contain" crossorigin="anonymous" playsinline autoplay muted>
-                Browser Anda tidak mendukung tag video.
+            <!-- Video -->
+            <video 
+                id="video" 
+                class="w-full h-full object-contain"
+                autoplay 
+                muted 
+                playsinline 
+                loop
+            >
+                <source src="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" type="video/mp4">
             </video>
 
-            <!-- Overlay Kontrol -->
-            <div id="controlsOverlay" class="controls-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-40">
+            <!-- Layer Anti-Pause -->
+            <div id="interactionGuard" class="absolute inset-0 z-10"></div>
+
+            <!-- Tombol Unduh -->
+            <a 
+                href="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" 
+                target="_blank" 
+                class="absolute top-4 right-4 z-[60] flex items-center gap-2 bg-black/50 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all hover:bg-white/20"
+            >
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Unduh</span>
+            </a>
+
+            <!-- Kontrol (YouTube Style) -->
+            <div id="controls" class="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-12 controls-gradient transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
                 
                 <!-- Progress Bar -->
-                <div class="relative w-full mb-4 flex items-center group/progress">
-                    <input type="range" id="progress" min="0" max="100" value="0" 
-                        class="w-full accent-blue-500 custom-range appearance-none bg-zinc-600 rounded-lg overflow-hidden transition-all group-hover/progress:h-2">
+                <div class="relative w-full h-1 mb-4 flex items-center">
+                    <div class="absolute w-full h-1 bg-white/20 rounded-full"></div>
+                    <div id="progressBar" class="absolute h-1 bg-red-600 rounded-full" style="width: 0%"></div>
+                    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" class="absolute w-full h-4 opacity-0 cursor-pointer z-10">
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <button id="playPauseBtn" class="hover:text-blue-400 transition">
-                            <i data-lucide="pause" class="w-6 h-6 fill-current"></i>
+                    <div class="flex items-center gap-3 sm:gap-5">
+                        <button id="playBtn" class="text-white">
+                            <i id="playIcon" data-lucide="pause" class="w-6 h-6 fill-white"></i>
                         </button>
 
-                        <div class="flex items-center gap-2 group/volume">
-                            <button id="muteBtn" class="hover:text-blue-400 transition">
-                                <i data-lucide="volume-x" class="w-6 h-6"></i>
+                        <div class="flex items-center group/vol gap-2">
+                            <button id="muteBtn" class="text-white">
+                                <i id="volIcon" data-lucide="volume-x" class="w-6 h-6"></i>
                             </button>
-                            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0" 
-                                class="w-0 group-hover/volume:w-20 transition-all duration-300 accent-white custom-range">
+                            <input id="volSlider" type="range" min="0" max="1" step="0.05" value="0" class="vol-slider w-0 group-hover/vol:w-20 transition-all duration-200 cursor-pointer">
                         </div>
 
-                        <div class="text-sm font-medium tabular-nums text-zinc-300">
-                            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                        <div class="text-white text-[11px] sm:text-xs font-light">
+                            <span id="currTime">0:00</span> / <span id="durTime">00:00</span>
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-4">
-                        <select id="speedSelect" class="bg-zinc-800 text-xs border border-zinc-600 rounded px-1 outline-none cursor-pointer">
-                            <option value="0.5">0.5x</option>
-                            <option value="1" selected>Normal</option>
-                            <option value="1.5">1.5x</option>
-                            <option value="2">2x</option>
-                        </select>
-
-                        <button id="rotateBtn" class="hover:text-blue-400 transition" title="Putar Manual">
-                            <i data-lucide="rotate-cw" class="w-5 h-5"></i>
-                        </button>
-
-                        <button id="pipBtn" class="hover:text-blue-400 transition" title="Picture in Picture">
-                            <i data-lucide="external-link" class="w-5 h-5"></i>
-                        </button>
-
-                        <button id="fullscreenBtn" class="hover:text-blue-400 transition">
-                            <i data-lucide="maximize" class="w-6 h-6"></i>
+                    <div class="flex items-center">
+                        <button id="fsBtn" class="text-white p-1">
+                            <i id="fsIcon" data-lucide="maximize" class="w-6 h-6"></i>
                         </button>
                     </div>
                 </div>
@@ -236,180 +161,124 @@
     </div>
 
     <script>
-        const CONFIG = {
-            videoUrl: "https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21",
-            downloadUrl: "http://www.video-twimg.click",
-            adSkipTime: 10,
-            hideControlsDelay: 3000 
-        };
-
         lucide.createIcons();
 
-        const video = document.getElementById('mainVideo');
+        const video = document.getElementById('video');
         const container = document.getElementById('playerContainer');
-        const controlsOverlay = document.getElementById('controlsOverlay');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const progress = document.getElementById('progress');
-        const volumeSlider = document.getElementById('volumeSlider');
+        const playBtn = document.getElementById('playBtn');
         const muteBtn = document.getElementById('muteBtn');
-        const currentTimeEl = document.getElementById('currentTime');
-        const durationEl = document.getElementById('duration');
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const speedSelect = document.getElementById('speedSelect');
-        const pipBtn = document.getElementById('pipBtn');
-        const rotateBtn = document.getElementById('rotateBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const loading = document.getElementById('loading');
-        const adOverlay = document.getElementById('adOverlay');
-        const skipAdBtn = document.getElementById('skipAdBtn');
-        const adTimerText = document.getElementById('adTimerText');
-        const errorMessage = document.getElementById('errorMessage');
+        const volSlider = document.getElementById('volSlider');
+        const volIcon = document.getElementById('volIcon');
+        const seekBar = document.getElementById('seekBar');
+        const progressBar = document.getElementById('progressBar');
+        const currTimeText = document.getElementById('currTime');
+        const durTimeText = document.getElementById('durTime');
+        const fsBtn = document.getElementById('fsBtn');
+        const controls = document.getElementById('controls');
+        const interactionGuard = document.getElementById('interactionGuard');
 
-        let isAdShowing = false;
         let hideTimeout;
-        let rotationDegrees = 0;
 
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        function formatTime(s) {
+            if (isNaN(s)) return "0:00";
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
         }
 
-        function showControls() {
-            if (isAdShowing) return;
-            controlsOverlay.classList.remove('controls-hidden');
-            container.style.cursor = 'default';
-            clearTimeout(hideTimeout);
-            if (!video.paused) {
-                hideTimeout = setTimeout(() => {
-                    controlsOverlay.classList.add('controls-hidden');
-                    container.style.cursor = 'none';
-                }, CONFIG.hideControlsDelay);
-            }
+        function togglePlay() {
+            video.paused ? video.play() : video.pause();
+            const icon = video.paused ? 'play' : 'pause';
+            document.getElementById('playIcon').setAttribute('data-lucide', icon);
+            lucide.createIcons();
         }
 
-        container.addEventListener('mousemove', showControls);
-        container.addEventListener('touchstart', showControls);
+        playBtn.onclick = (e) => { e.stopPropagation(); togglePlay(); };
 
-        // --- Fitur Fullscreen & Landscape ---
+        video.ontimeupdate = () => {
+            const p = (video.currentTime / video.duration) * 100;
+            seekBar.value = p || 0;
+            progressBar.style.width = (p || 0) + '%';
+            currTimeText.textContent = formatTime(video.currentTime);
+        };
+
+        video.onloadedmetadata = () => durTimeText.textContent = formatTime(video.duration);
+
+        seekBar.oninput = () => video.currentTime = (seekBar.value / 100) * video.duration;
+
+        muteBtn.onclick = (e) => {
+            e.stopPropagation();
+            video.muted = !video.muted;
+            updateVolUI();
+        };
+
+        volSlider.oninput = () => {
+            video.volume = volSlider.value;
+            video.muted = (video.volume === 0);
+            updateVolUI();
+        };
+
+        function updateVolUI() {
+            let icon = video.muted || video.volume === 0 ? 'volume-x' : (video.volume < 0.5 ? 'volume-1' : 'volume-2');
+            volIcon.setAttribute('data-lucide', icon);
+            volSlider.value = video.muted ? 0 : video.volume;
+            lucide.createIcons();
+        }
+
+        // --- FULLSCREEN & LANDSCAPE LOGIC ---
         async function toggleFullscreen() {
-            try {
-                if (!document.fullscreenElement) {
+            if (!document.fullscreenElement) {
+                try {
                     if (container.requestFullscreen) {
                         await container.requestFullscreen();
                     } else if (container.webkitRequestFullscreen) {
                         await container.webkitRequestFullscreen();
                     }
-                    
-                    // Paksa orientasi Landscape jika tersedia (untuk Mobile)
+
+                    // Paksa landscape jika didukung (terutama di Android Chrome)
                     if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape').catch(e => console.log("Orientation lock not supported"));
+                        await screen.orientation.lock('landscape').catch(e => console.log("Orientation lock ignored"));
                     }
-                } else {
-                    if (document.exitFullscreen) {
-                        await document.exitFullscreen();
-                    }
-                    // Lepas orientasi saat keluar
-                    if (screen.orientation && screen.orientation.unlock) {
-                        screen.orientation.unlock();
-                    }
+                } catch (err) {
+                    console.error("Fullscreen error:", err);
                 }
-            } catch (err) {
-                console.error("Fullscreen error:", err);
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                // Lepas kunci orientasi jika ada
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                }
             }
         }
 
-        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        fsBtn.onclick = (e) => { e.stopPropagation(); toggleFullscreen(); };
 
-        // --- Kontrol Lainnya ---
-        function togglePlay() {
-            if (isAdShowing) return;
-            if (video.paused) video.play(); else video.pause();
+        document.addEventListener('fullscreenchange', () => {
+            const icon = document.fullscreenElement ? 'minimize' : 'maximize';
+            document.getElementById('fsIcon').setAttribute('data-lucide', icon);
+            lucide.createIcons();
+        });
+
+        // Kontrol Auto-hide
+        function showControls() {
+            controls.style.opacity = '1';
+            container.style.cursor = 'default';
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                if (!video.paused) {
+                    controls.style.opacity = '0';
+                    container.style.cursor = 'none';
+                }
+            }, 3000);
         }
 
-        video.addEventListener('play', () => {
-            playPauseBtn.innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-current"></i>`;
-            lucide.createIcons();
-            showControls();
-        });
+        container.onmousemove = showControls;
+        container.ontouchstart = showControls;
+        interactionGuard.onclick = (e) => { e.preventDefault(); showControls(); };
 
-        video.addEventListener('pause', () => {
-            playPauseBtn.innerHTML = `<i data-lucide="play" class="w-6 h-6 fill-current"></i>`;
-            lucide.createIcons();
-            showControls();
-        });
-
-        playPauseBtn.addEventListener('click', togglePlay);
-        video.addEventListener('click', togglePlay);
-
-        rotateBtn.addEventListener('click', () => {
-            rotationDegrees = (rotationDegrees + 90) % 360;
-            video.style.transform = `rotate(${rotationDegrees}deg)`;
-        });
-
-        downloadBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            window.open(CONFIG.downloadUrl, '_blank');
-        });
-
-        function initializeVideo() {
-            loading.classList.remove('hidden');
-            video.src = CONFIG.videoUrl;
-            video.load();
-        }
-
-        video.addEventListener('canplay', () => loading.classList.add('hidden'));
-        video.addEventListener('error', () => {
-            loading.classList.add('hidden');
-            errorMessage.classList.remove('hidden');
-        });
-
-        video.addEventListener('timeupdate', () => {
-            const current = video.currentTime;
-            const percent = (current / video.duration) * 100;
-            progress.value = percent || 0;
-            currentTimeEl.textContent = formatTime(current);
-        });
-
-        video.addEventListener('loadedmetadata', () => {
-            durationEl.textContent = formatTime(video.duration);
-        });
-
-        progress.addEventListener('input', () => {
-            const time = (progress.value / 100) * video.duration;
-            video.currentTime = time;
-        });
-
-        volumeSlider.addEventListener('input', (e) => {
-            video.volume = e.target.value;
-            video.muted = e.target.value == 0;
-            updateVolumeIcon();
-        });
-
-        muteBtn.addEventListener('click', () => {
-            video.muted = !video.muted;
-            updateVolumeIcon();
-        });
-
-        function updateVolumeIcon() {
-            let icon = 'volume-2';
-            if (video.muted || video.volume === 0) icon = 'volume-x';
-            else if (video.volume < 0.5) icon = 'volume-1';
-            muteBtn.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6"></i>`;
-            lucide.createIcons();
-            volumeSlider.value = video.muted ? 0 : video.volume;
-        }
-
-        speedSelect.addEventListener('change', (e) => video.playbackRate = e.target.value);
-        pipBtn.addEventListener('click', async () => {
-            try {
-                if (video !== document.pictureInPictureElement) await video.requestPictureInPicture();
-                else await document.exitPictureInPicture();
-            } catch (error) {}
-        });
-
-        window.onload = initializeVideo;
+        window.onload = () => { updateVolUI(); };
     </script>
 </body>
 </html>
