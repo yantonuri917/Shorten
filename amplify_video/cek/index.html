@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="referrer" content="no-referrer"><title>Pemutar Video Pro - Auto Landscape</title>
+    <!-- Tailwind CSS untuk Desain -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ikon Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- HLS.js untuk kompatibilitas streaming -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        video::-webkit-media-controls {
+            display: none !important;
+        }
+        
+        .controls-overlay {
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .controls-hidden {
+            opacity: 0 !important;
+            pointer-events: none;
+        }
+
+        .custom-range {
+            height: 5px;
+            cursor: pointer;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Iklan Overlay Tengah */
+        #adOverlay {
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        #adContainerWrapper {
+            max-width: 100%;
+            max-height: 70%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* Tombol download permanen di pojok */
+        .permanent-download {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            border-radius: 9999px;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .permanent-download:hover {
+            background: rgba(59, 130, 246, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Rotasi Video manual tetap ada */
+        #mainVideo {
+            transition: transform 0.3s ease-in-out;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Container untuk Banner Iklan Atas */
+        .top-banner-container {
+            width: 320px;
+            height: 50px;
+            margin: 0 auto 20px auto;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 4px;
+        }
+
+        /* Animasi Transisi Fullscreen */
+        :fullscreen #playerContainer {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+        }
+    </style>
+</head>
+<body class="bg-black min-h-screen flex flex-col items-center justify-center font-sans text-white overflow-x-hidden">
+
+    <!-- IKLAN BANNER ATAS (320x50) -->
+    <div class="top-banner-container">
+        <script>
+            atOptions = {
+                'key' : 'baa0afb18e2e70c00e4c1406e4824e4b',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+    </div>
+
+    <div class="w-full max-w-5xl px-4">
+        <!-- Container Pemutar Video -->
+        <div id="playerContainer" class="relative group bg-black rounded-xl overflow-hidden shadow-2xl aspect-video flex items-center justify-center cursor-none">
+            
+            <!-- Tombol Download Permanen -->
+            <button id="downloadBtn" class="permanent-download" title="Unduh Video">
+                <i data-lucide="download" class="w-6 h-6 text-white"></i>
+            </button>
+
+            <!-- Pesan Error -->
+            <div id="errorMessage" class="hidden absolute z-50 bg-black/90 p-6 rounded-lg text-center max-w-xs">
+                <i data-lucide="alert-triangle" class="w-12 h-12 text-red-500 mx-auto mb-2"></i>
+                <p class="text-white font-bold">Gagal Memutar Video</p>
+                <p class="text-xs text-zinc-400 mt-2">Server video (Twitter) memblokir akses (CORS). Gunakan video lain jika tetap gagal.</p>
+                <button onclick="location.reload()" class="mt-4 text-xs bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded">Coba Lagi</button>
+            </div>
+
+            <!-- Iklan Overlay Tengah -->
+            <div id="adOverlay" class="absolute inset-0 w-full h-full">
+                <div id="adContainerWrapper">
+                    <div id="adContainer">
+                        <script>
+                            atOptions = {
+                                'key' : '2d64196b4b3d1a66feb2a120465fcbd4',
+                                'format' : 'iframe',
+                                'height' : 250,
+                                'width' : 300,
+                                'params' : {}
+                            };
+                        </script>
+                        <script src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-center w-full mt-4">
+                    <p id="adTimerText" class="text-sm text-zinc-300 mb-3 bg-black/50 px-4 py-1 rounded-full">
+                        Iklan dapat dilewati dalam 10 detik
+                    </p>
+                    <button id="skipAdBtn" disabled class="bg-zinc-700 text-zinc-500 px-8 py-3 rounded-md font-bold cursor-not-allowed transition-all duration-300">
+                        Lewati Iklan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Indikator Loading -->
+            <div id="loading" class="absolute z-30">
+                <div class="loader"></div>
+            </div>
+
+            <!-- Elemen Video -->
+            <video id="mainVideo" class="w-full h-full object-contain" crossorigin="anonymous" playsinline autoplay muted>
+                Browser Anda tidak mendukung tag video.
+            </video>
+
+            <!-- Overlay Kontrol -->
+            <div id="controlsOverlay" class="controls-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent p-4 z-40">
+                
+                <!-- Progress Bar -->
+                <div class="relative w-full mb-4 flex items-center group/progress">
+                    <input type="range" id="progress" min="0" max="100" value="0" 
+                        class="w-full accent-blue-500 custom-range appearance-none bg-zinc-600 rounded-lg overflow-hidden transition-all group-hover/progress:h-2">
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button id="playPauseBtn" class="hover:text-blue-400 transition">
+                            <i data-lucide="pause" class="w-6 h-6 fill-current"></i>
+                        </button>
+
+                        <div class="flex items-center gap-2 group/volume">
+                            <button id="muteBtn" class="hover:text-blue-400 transition">
+                                <i data-lucide="volume-x" class="w-6 h-6"></i>
+                            </button>
+                            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0" 
+                                class="w-0 group-hover/volume:w-20 transition-all duration-300 accent-white custom-range">
+                        </div>
+
+                        <div class="text-sm font-medium tabular-nums text-zinc-300">
+                            <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <select id="speedSelect" class="bg-zinc-800 text-xs border border-zinc-600 rounded px-1 outline-none cursor-pointer">
+                            <option value="0.5">0.5x</option>
+                            <option value="1" selected>Normal</option>
+                            <option value="1.5">1.5x</option>
+                            <option value="2">2x</option>
+                        </select>
+
+                        <button id="rotateBtn" class="hover:text-blue-400 transition" title="Putar Manual">
+                            <i data-lucide="rotate-cw" class="w-5 h-5"></i>
+                        </button>
+
+                        <button id="pipBtn" class="hover:text-blue-400 transition" title="Picture in Picture">
+                            <i data-lucide="external-link" class="w-5 h-5"></i>
+                        </button>
+
+                        <button id="fullscreenBtn" class="hover:text-blue-400 transition">
+                            <i data-lucide="maximize" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            videoUrl: "https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21",
+            downloadUrl: "http://www.video-twimg.click",
+            adSkipTime: 10,
+            hideControlsDelay: 3000 
+        };
+
+        lucide.createIcons();
+
+        const video = document.getElementById('mainVideo');
+        const container = document.getElementById('playerContainer');
+        const controlsOverlay = document.getElementById('controlsOverlay');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const progress = document.getElementById('progress');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const muteBtn = document.getElementById('muteBtn');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const speedSelect = document.getElementById('speedSelect');
+        const pipBtn = document.getElementById('pipBtn');
+        const rotateBtn = document.getElementById('rotateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+        const adOverlay = document.getElementById('adOverlay');
+        const skipAdBtn = document.getElementById('skipAdBtn');
+        const adTimerText = document.getElementById('adTimerText');
+        const errorMessage = document.getElementById('errorMessage');
+
+        let isAdShowing = false;
+        let hideTimeout;
+        let rotationDegrees = 0;
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function showControls() {
+            if (isAdShowing) return;
+            controlsOverlay.classList.remove('controls-hidden');
+            container.style.cursor = 'default';
+            clearTimeout(hideTimeout);
+            if (!video.paused) {
+                hideTimeout = setTimeout(() => {
+                    controlsOverlay.classList.add('controls-hidden');
+                    container.style.cursor = 'none';
+                }, CONFIG.hideControlsDelay);
+            }
+        }
+
+        container.addEventListener('mousemove', showControls);
+        container.addEventListener('touchstart', showControls);
+
+        // --- Fitur Fullscreen & Landscape ---
+        async function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    if (container.requestFullscreen) {
+                        await container.requestFullscreen();
+                    } else if (container.webkitRequestFullscreen) {
+                        await container.webkitRequestFullscreen();
+                    }
+                    
+                    // Paksa orientasi Landscape jika tersedia (untuk Mobile)
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape').catch(e => console.log("Orientation lock not supported"));
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        await document.exitFullscreen();
+                    }
+                    // Lepas orientasi saat keluar
+                    if (screen.orientation && screen.orientation.unlock) {
+                        screen.orientation.unlock();
+                    }
+                }
+            } catch (err) {
+                console.error("Fullscreen error:", err);
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // --- Kontrol Lainnya ---
+        function togglePlay() {
+            if (isAdShowing) return;
+            if (video.paused) video.play(); else video.pause();
+        }
+
+        video.addEventListener('play', () => {
+            playPauseBtn.innerHTML = `<i data-lucide="pause" class="w-6 h-6 fill-current"></i>`;
+            lucide.createIcons();
+            showControls();
+        });
+
+        video.addEventListener('pause', () => {
+            playPauseBtn.innerHTML = `<i data-lucide="play" class="w-6 h-6 fill-current"></i>`;
+            lucide.createIcons();
+            showControls();
+        });
+
+        playPauseBtn.addEventListener('click', togglePlay);
+        video.addEventListener('click', togglePlay);
+
+        rotateBtn.addEventListener('click', () => {
+            rotationDegrees = (rotationDegrees + 90) % 360;
+            video.style.transform = `rotate(${rotationDegrees}deg)`;
+        });
+
+        downloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            window.open(CONFIG.downloadUrl, '_blank');
+        });
+
+        function initializeVideo() {
+            loading.classList.remove('hidden');
+            video.src = CONFIG.videoUrl;
+            video.load();
+        }
+
+        video.addEventListener('canplay', () => loading.classList.add('hidden'));
+        video.addEventListener('error', () => {
+            loading.classList.add('hidden');
+            errorMessage.classList.remove('hidden');
+        });
+
+        video.addEventListener('timeupdate', () => {
+            const current = video.currentTime;
+            const percent = (current / video.duration) * 100;
+            progress.value = percent || 0;
+            currentTimeEl.textContent = formatTime(current);
+        });
+
+        video.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(video.duration);
+        });
+
+        progress.addEventListener('input', () => {
+            const time = (progress.value / 100) * video.duration;
+            video.currentTime = time;
+        });
+
+        volumeSlider.addEventListener('input', (e) => {
+            video.volume = e.target.value;
+            video.muted = e.target.value == 0;
+            updateVolumeIcon();
+        });
+
+        muteBtn.addEventListener('click', () => {
+            video.muted = !video.muted;
+            updateVolumeIcon();
+        });
+
+        function updateVolumeIcon() {
+            let icon = 'volume-2';
+            if (video.muted || video.volume === 0) icon = 'volume-x';
+            else if (video.volume < 0.5) icon = 'volume-1';
+            muteBtn.innerHTML = `<i data-lucide="${icon}" class="w-6 h-6"></i>`;
+            lucide.createIcons();
+            volumeSlider.value = video.muted ? 0 : video.volume;
+        }
+
+        speedSelect.addEventListener('change', (e) => video.playbackRate = e.target.value);
+        pipBtn.addEventListener('click', async () => {
+            try {
+                if (video !== document.pictureInPictureElement) await video.requestPictureInPicture();
+                else await document.exitPictureInPicture();
+            } catch (error) {}
+        });
+
+        window.onload = initializeVideo;
+    </script>
+</body>
+</html>
