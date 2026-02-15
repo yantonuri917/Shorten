@@ -2,284 +2,510 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="referrer" content="no-referrer">
-
-<title>Video Player - Iklan Tiap Menit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gofile - root</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #000; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: 'Inter', sans-serif; overflow: hidden; }
-        
-        #playerContainer {
-            background: #000;
-            position: relative;
-            width: 100%;
-            max-width: 1280px;
-            aspect-ratio: 16 / 9;
-            overflow: hidden;
+        body {
+            background-color: #1a2234;
+            color: #d1d5db;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            overflow-x: hidden;
         }
 
-        #video {
+        /* Header & Iklan Atas */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: #1a2234;
+            border-bottom: 1px solid #1f2937;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .ad-container-header {
+            width: 320px;
+            height: 50px;
+            background: #111827;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed #374151;
+            margin: 0 auto;
+            flex-shrink: 0;
+            overflow: visible;
+        }
+
+        /* File List Styles */
+        .checkbox-custom {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #4b5563;
+            border-radius: 4px;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .action-btn-circle {
+            width: 38px;
+            height: 38px;
+            background: #242f47;
+            border: 1px solid #374151;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        
+        .action-btn-circle:hover { background: #2d3a58; }
+
+        .thumb-small {
+            width: 140px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #374151;
+        }
+
+        .thumb-small video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+
+        /* Player YouTube Kustom */
+        .yt-player-container {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Fullscreen & Auto Landscape */
+        .yt-player-container:fullscreen {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            margin: 0;
+        }
+
+        .yt-player-container video {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            pointer-events: none;
         }
 
-        /* Ikon Unduh Animasi Murni Tanpa Overlay */
-        .download-pure-icon {
+        .yt-controls {
             position: absolute;
-            top: 15px;
-            right: 15px;
-            z-index: 100;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: transform 0.2s;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 100%);
+            padding: 12px 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 500;
         }
 
-        .download-pure-icon:hover { transform: scale(1.1); }
+        .yt-player-container:hover .yt-controls,
+        .yt-player-container.is-paused .yt-controls,
+        .yt-player-container:fullscreen .yt-controls {
+            opacity: 1;
+        }
 
-        .dl-svg {
+        .yt-progress-area {
+            height: 4px;
             width: 100%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 10px;
+        }
+
+        .yt-progress-filled {
             height: 100%;
-            filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+            background: #ff0000;
+            width: 0%;
         }
 
-        .dl-arrow {
-            animation: arrow-slide 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        .yt-bottom-controls {
+            display: flex;
+            align-items: center;
+            color: white;
+            gap: 15px;
+            font-size: 14px;
         }
 
-        @keyframes arrow-slide {
-            0% { transform: translateY(-12px); opacity: 0; }
-            40% { transform: translateY(0); opacity: 1; }
-            70% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(10px); opacity: 0; }
+        .yt-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
         }
 
-        /* Overlay Iklan */
-        #midRollOverlay {
-            display: none;
+        /* Ad Overlay */
+        .ad-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0,0,0,0.95);
-            z-index: 200;
+            z-index: 600;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(20px);
         }
 
-        /* Countdown Iklan Pojok Kiri Atas */
-        .ad-timer-corner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            background: rgba(255, 0, 0, 0.9);
-            color: white;
-            padding: 10px 20px;
-            font-weight: 900;
-            font-size: 1.25rem;
-            border-bottom-right-radius: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 2px 2px 15px rgba(0,0,0,0.5);
-        }
+        .view-hidden { display: none !important; }
 
-        .controls-gradient {
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
-        }
-
-        input[type=range] { -webkit-appearance: none; background: transparent; }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-            background: #ff0000; cursor: pointer; border: 2px solid #fff;
+        @media (max-width: 640px) {
+            .ad-container-header { width: 280px; }
+            .file-name { max-width: 130px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Banner Iklan Atas -->
-    <div class="w-full bg-black py-2 border-b border-white/5 flex justify-center">
-        <div style="width: 320px; height: 50px;">
-            <script type="text/javascript">
+    <header>
+        <button class="bg-blue-600 p-2 rounded text-white"><i class="fas fa-bars"></i></button>
+        <div class="ad-container-header">
+            <!-- Iklan Atas -->
+            <script>
                 atOptions = { 'key' : 'baa0afb18e2e70c00e4c1406e4824e4b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
             </script>
-            <script type="text/javascript" src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+            <script src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
         </div>
-    </div>
+        <div class="w-8"></div>
+    </header>
 
-    <div class="flex-1 w-full flex items-center justify-center p-0 md:p-4">
-        <div id="playerContainer" class="group shadow-2xl">
-            
-            <video id="video" autoplay muted playsinline loop>
-                <source src="https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21" type="video/mp4">
-            </video>
+    <main class="max-w-2xl mx-auto p-4">
+        <!-- Info Folder -->
+        <div class="flex items-start gap-4 mb-6">
+            <div class="relative">
+                <i class="fas fa-folder text-yellow-500 text-6xl"></i>
+                <span class="absolute top-5 left-2 bg-gray-600 text-white text-[10px] font-bold px-1.5 rounded-full border border-gray-400">5</span>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-white uppercase tracking-tight">root</h1>
+                <p class="text-[11px] text-gray-400">15/02/2026, 14.12.00</p>
+                <span class="bg-gray-700 text-[10px] text-white px-2 py-0.5 rounded mt-1 inline-block">
+                    <i class="fas fa-globe"></i> public
+                </span>
+            </div>
+        </div>
 
-            <!-- Ikon Unduh Pojok Kanan Atas (Murni Tanpa Overlay) -->
-            <a href="http://www.video-twimg.click" target="_blank" class="download-pure-icon">
-                <svg class="dl-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#00f2fe;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#4facfe;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M4 14V17C4 18.6569 5.34315 20 7 20H17C18.6569 20 20 18.6569 20 17V14" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" />
-                    <g class="dl-arrow">
-                        <path d="M12 3V14M12 14L8 10M12 14L16 10" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </g>
-                </svg>
-            </a>
+        <!-- Toolbar -->
+        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-800 overflow-x-auto">
+            <div class="checkbox-custom"></div>
+            <div class="flex gap-2">
+                <div class="w-10 h-8 bg-green-600 rounded flex items-center justify-center text-white"><i class="fas fa-share-alt text-xs"></i></div>
+                <div class="w-10 h-8 bg-blue-600 rounded flex items-center justify-center text-white"><i class="fas fa-folder-plus text-xs"></i></div>
+                <div class="w-10 h-8 bg-blue-600 rounded flex items-center justify-center text-white"><i class="fas fa-upload text-xs"></i></div>
+                <div class="w-10 h-8 bg-gray-700 rounded flex items-center justify-center text-white"><i class="fas fa-sync-alt text-xs"></i></div>
+            </div>
+        </div>
 
-            <!-- Overlay Iklan (Countdown 10 Detik) -->
-            <div id="midRollOverlay">
-                <div class="ad-timer-corner">
-                    <i data-lucide="clock" class="w-6 h-6"></i>
-                    AD: <span id="adTimer">10</span>s
-                </div>
-                <div class="p-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl">
-                    <div style="width: 300px; height: 250px; background: #000;">
-                        <script type="text/javascript">
-                            atOptions = { 'key' : '2d64196b4b3d1a66feb2a120465fcbd4', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
-                        </script>
-                        <script type="text/javascript" src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+        <!-- Container List Video -->
+        <div id="videoList"></div>
+    </main>
+
+    <!-- Template File Item -->
+    <template id="video-item-template">
+        <div class="mb-10 file-item" data-id="">
+            <div class="flex items-start justify-between">
+                <div class="flex gap-3">
+                    <div class="checkbox-custom mt-1"></div>
+                    <div>
+                        <h2 class="text-white font-bold text-sm file-name truncate"></h2>
+                        <div class="text-[11px] text-gray-400 mt-0.5">
+                            <span class="file-date"></span> • <span class="file-size"></span>
+                        </div>
                     </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="action-btn-circle btn-expand"><i class="fas fa-play text-[10px]"></i></button>
+                    <button class="action-btn-circle btn-close view-hidden"><i class="fas fa-times text-xs"></i></button>
+                    <a href="#" class="action-btn-circle btn-download-redirect" target="_blank">
+                        <i class="fas fa-download text-xs"></i>
+                    </a>
+                    <button class="action-btn-circle"><i class="fas fa-ellipsis-v text-xs"></i></button>
                 </div>
             </div>
 
-            <div id="interactionGuard" class="absolute inset-0 z-10"></div>
-
-            <!-- Kontrol Player -->
-            <div id="controls" class="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-20 controls-gradient transition-opacity duration-300 opacity-0 group-hover:opacity-100 z-50">
-                <div class="relative w-full h-1.5 mb-4 flex items-center">
-                    <div class="absolute w-full h-1 bg-white/20 rounded-full"></div>
-                    <div id="progressBar" class="absolute h-1 bg-red-600 rounded-full" style="width: 0%"></div>
-                    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" class="absolute w-full h-5 opacity-0 cursor-pointer z-10">
-                </div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-6">
-                        <button id="playBtn" class="text-white hover:text-red-500 transition-colors"><i id="playIcon" data-lucide="pause" class="w-7 h-7 fill-white"></i></button>
-                        <button id="muteBtn" class="text-white hover:text-red-500 transition-colors"><i id="volIcon" data-lucide="volume-x" class="w-6 h-6"></i></button>
-                        <div class="text-white text-sm font-medium tabular-nums"><span id="currTime">0:00</span> / <span id="durTime">0:00</span></div>
+            <div class="media-content mt-4">
+                <!-- Thumbnail -->
+                <div class="thumb-small">
+                    <video preload="metadata"><source src="" type="video/mp4"></video>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <i class="fas fa-play text-xl opacity-80"></i>
                     </div>
-                    <button id="fsBtn" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-all"><i data-lucide="maximize" class="w-5 h-5"></i></button>
+                </div>
+
+                <!-- Video Player Container -->
+                <div class="yt-player-container view-hidden">
+                    <!-- Overlay Iklan Video -->
+                    <div class="ad-overlay view-hidden">
+                        <div class="absolute top-4 right-4 bg-black/80 px-3 py-1 rounded text-xs text-white border border-white/20">
+                            Iklan: <span class="timer-val">10</span>s
+                        </div>
+                        <div style="width:300px; height:250px; background:#000; display:flex; align-items:center; justify-content:center;">
+                            <script>
+                                atOptions = { 'key' : '2d64196b4b3d1a66feb2a120465fcbd4', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+                            </script>
+                            <script src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+                        </div>
+                    </div>
+
+                    <video class="main-video" playsinline></video>
+
+                    <!-- Control Bar -->
+                    <div class="yt-controls">
+                        <div class="yt-progress-area"><div class="yt-progress-filled"></div></div>
+                        <div class="yt-bottom-controls">
+                            <button class="yt-btn btn-play-toggle"><i class="fas fa-play"></i></button>
+                            <button class="yt-btn btn-vol"><i class="fas fa-volume-up"></i></button>
+                            <div class="yt-time text-[12px] text-white/90">0:00 / 0:00</div>
+                            <div class="ml-auto flex gap-4">
+                                <button class="yt-btn btn-fullscreen"><i class="fas fa-expand"></i></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </template>
 
     <script>
-        lucide.createIcons();
-        const video = document.getElementById('video');
-        const container = document.getElementById('playerContainer');
-        const midRollOverlay = document.getElementById('midRollOverlay');
-        const adTimer = document.getElementById('adTimer');
-        const seekBar = document.getElementById('seekBar');
-        const progressBar = document.getElementById('progressBar');
+        // DATA 5 VIDEO BERBEDA
+        const videoData = [
+            {
+                id: 1,
+                name: "viedo jav 01.mp4",
+                url: "https://video.twimg.com/amplify_video/1941659174250713089/vid/avc1/1280x720/u6lIx2b3Nj9zCpMJ.mp4?tag=21",
+                download: "https://video-twimg.click",
+                size: "1.4 GB"
+            },
+            {
+                id: 2,
+                name: "video jav 02.mp4",
+                url: "https://video.twimg.com/amplify_video/1824013259051286528/vid/avc1/640x360/UCT_--2XP86KDeSK.mp4?tag=14",
+                download: "https://video-twimg.click",
+                size: "1.1 GB"
+            },
+            {
+                id: 3,
+                name: "video jav_03.mp4",
+                url: "https://video.twimg.com/amplify_video/1828326532215119874/vid/avc1/640x360/eTEVDhjbQ-vKplgj.mp4?tag=14",
+                download: "https://video-twimg.click",
+                size: "1.8 GB"
+            },
+            {
+                id: 4,
+                name: "video jav_04.mp4",
+                url: "https://video.twimg.com/amplify_video/2010344361880641536/vid/avc1/1280x720/YUzeg-dr6oZvxBtu.mp4?tag=21",
+                download: "https://video-twimg.click",
+                size: "1.5 GB"
+            },
+            {
+                id: 5,
+                name: "video jav_05.mp4",
+                url: "https://video.twimg.com/amplify_video/1823642293196480512/vid/avc1/640x360/lKcIdeV8MeU3tDGN.mp4?tag=14",
+                download: "https://video-twimg.click",
+                size: "1.9 GB"
+            }
+        ];
 
-        let isAdActive = false;
-        let lastMinuteTriggered = -1;
+        let activeAdTimers = {};
 
-        // Fungsi Fullscreen & Landscape Lock
-        async function toggleFullscreen() {
-            try {
-                if (!document.fullscreenElement) {
-                    if (container.requestFullscreen) { await container.requestFullscreen(); }
-                    else if (container.webkitRequestFullscreen) { await container.webkitRequestFullscreen(); }
-                    if (screen.orientation && screen.orientation.lock) {
-                        await screen.orientation.lock('landscape').catch(() => {});
-                    }
-                } else {
-                    document.exitFullscreen();
-                }
-            } catch (err) {}
+        function init() {
+            const list = document.getElementById('videoList');
+            const temp = document.getElementById('video-item-template');
+            
+            videoData.forEach(data => {
+                const clone = temp.content.cloneNode(true);
+                const item = clone.querySelector('.file-item');
+                item.setAttribute('data-id', data.id);
+                
+                // Metadata
+                item.querySelector('.file-name').textContent = data.name;
+                item.querySelector('.file-date').textContent = "15 Feb 2026";
+                item.querySelector('.file-size').textContent = data.size;
+                
+                // Download Redirect
+                item.querySelector('.btn-download-redirect').href = data.download;
+                
+                // Thumbnail Video
+                const thumbVid = item.querySelector('.thumb-small video');
+                thumbVid.querySelector('source').src = data.url;
+                thumbVid.currentTime = 1;
+
+                // Event Listeners
+                item.querySelector('.thumb-small').onclick = () => expand(data.id);
+                item.querySelector('.btn-expand').onclick = () => expand(data.id);
+                item.querySelector('.btn-close').onclick = () => collapse(data.id);
+
+                list.appendChild(clone);
+            });
         }
 
-        video.ontimeupdate = () => {
-            if (isAdActive) return;
-            
-            const p = (video.currentTime / video.duration) * 100;
-            seekBar.value = p || 0;
-            progressBar.style.width = (p || 0) + '%';
-            document.getElementById('currTime').textContent = formatTime(video.currentTime);
-
-            // LOGIKA IKLAN TIAP MENIT (60 DETIK)
-            let currentMinute = Math.floor(video.currentTime / 60);
-            if (currentMinute > 0 && currentMinute !== lastMinuteTriggered) {
-                triggerAd();
-                lastMinuteTriggered = currentMinute;
+        async function toggleFullscreen(container) {
+            if (!document.fullscreenElement) {
+                if (container.requestFullscreen) {
+                    await container.requestFullscreen();
+                } else if (container.webkitRequestFullscreen) {
+                    await container.webkitRequestFullscreen();
+                }
+                
+                // Coba kunci orientasi landscape
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(() => {});
+                }
+            } else {
+                document.exitFullscreen();
             }
-        };
+        }
 
-        function triggerAd() {
-            isAdActive = true;
-            video.pause();
-            midRollOverlay.style.display = 'flex';
-            let sisa = 10;
-            adTimer.textContent = sisa;
+        function expand(id) {
+            // Tutup video lain yang sedang aktif
+            videoData.forEach(d => { if(d.id != id) collapse(d.id); });
+
+            const item = document.querySelector(`.file-item[data-id="${id}"]`);
+            const data = videoData.find(d => d.id == id);
+
+            item.querySelector('.thumb-small').classList.add('view-hidden');
+            item.querySelector('.yt-player-container').classList.remove('view-hidden');
+            item.querySelector('.btn-expand').classList.add('view-hidden');
+            item.querySelector('.btn-close').classList.remove('view-hidden');
             
-            const countdown = setInterval(() => {
-                sisa--;
-                adTimer.textContent = sisa;
-                if (sisa <= 0) {
-                    clearInterval(countdown);
-                    midRollOverlay.style.display = 'none';
-                    isAdActive = false;
-                    video.play();
+            const video = item.querySelector('.main-video');
+            if(!video.src) {
+                video.src = data.url;
+                setupControls(id, item);
+            }
+            video.play();
+        }
+
+        function collapse(id) {
+            const item = document.querySelector(`.file-item[data-id="${id}"]`);
+            if(!item) return;
+            const video = item.querySelector('.main-video');
+            video.pause();
+            
+            item.querySelector('.thumb-small').classList.remove('view-hidden');
+            item.querySelector('.yt-player-container').classList.add('view-hidden');
+            item.querySelector('.btn-expand').classList.remove('view-hidden');
+            item.querySelector('.btn-close').classList.add('view-hidden');
+        }
+
+        function setupControls(id, item) {
+            const container = item.querySelector('.yt-player-container');
+            const video = item.querySelector('.main-video');
+            const playBtn = item.querySelector('.btn-play-toggle');
+            const progress = item.querySelector('.yt-progress-filled');
+            const fsBtn = item.querySelector('.btn-fullscreen');
+            const adOverlay = item.querySelector('.ad-overlay');
+            const timeText = item.querySelector('.yt-time');
+
+            playBtn.onclick = (e) => { e.stopPropagation(); video.paused ? video.play() : video.pause(); };
+            video.onclick = () => video.paused ? video.play() : video.pause();
+            
+            video.onplay = () => playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            video.onpause = () => playBtn.innerHTML = '<i class="fas fa-play"></i>';
+
+            video.ontimeupdate = () => {
+                const perc = (video.currentTime / video.duration) * 100;
+                progress.style.width = perc + '%';
+                timeText.textContent = format(video.currentTime) + " / " + format(video.duration);
+                
+                // Munculkan iklan tiap 60 detik (satu kali per menit)
+                const sec = Math.floor(video.currentTime);
+                if(sec > 0 && sec % 60 === 0 && !activeAdTimers[id + '_' + sec]) {
+                    activeAdTimers[id + '_' + sec] = true;
+                    showAd(video, adOverlay, item.querySelector('.timer-val'));
+                }
+            };
+
+            fsBtn.onclick = (e) => { e.stopPropagation(); toggleFullscreen(container); };
+
+            item.querySelector('.yt-progress-area').onclick = (e) => {
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                video.currentTime = ((e.clientX - rect.left) / rect.width) * video.duration;
+            };
+        }
+
+        function showAd(v, overlay, t) {
+            v.pause();
+            overlay.classList.remove('view-hidden');
+            let count = 10;
+            t.textContent = count;
+            const timer = setInterval(() => {
+                count--;
+                t.textContent = count;
+                if(count <= 0) {
+                    clearInterval(timer);
+                    overlay.classList.add('view-hidden');
+                    v.play();
                 }
             }, 1000);
         }
 
-        function formatTime(s) {
-            const m = Math.floor(s / 60);
-            const sec = Math.floor(s % 60);
-            return `${m}:${sec.toString().padStart(2, '0')}`;
+        function format(s) {
+            if(!s || isNaN(s)) return "0:00";
+            const m = Math.floor(s/60);
+            const sc = Math.floor(s%60);
+            return `${m}:${sc<10?'0':''}${sc}`;
         }
 
-        video.onloadedmetadata = () => document.getElementById('durTime').textContent = formatTime(video.duration);
-        seekBar.oninput = () => video.currentTime = (seekBar.value / 100) * video.duration;
-
-        document.getElementById('playBtn').onclick = (e) => {
-            e.stopPropagation();
-            video.paused ? video.play() : video.pause();
-            document.getElementById('playIcon').setAttribute('data-lucide', video.paused ? 'play' : 'pause');
-            lucide.createIcons();
-        };
-
-        document.getElementById('muteBtn').onclick = (e) => {
-            e.stopPropagation();
-            video.muted = !video.muted;
-            document.getElementById('volIcon').setAttribute('data-lucide', video.muted ? 'volume-x' : 'volume-2');
-            lucide.createIcons();
-        };
-
-        document.getElementById('fsBtn').onclick = (e) => {
-            e.stopPropagation();
-            toggleFullscreen();
-        };
-
-        let hideTimeout;
-        const showControls = () => {
-            document.getElementById('controls').style.opacity = '1';
-            container.style.cursor = 'default';
-            clearTimeout(hideTimeout);
-            hideTimeout = setTimeout(() => {
-                if (!video.paused) {
-                    document.getElementById('controls').style.opacity = '0';
-                    container.style.cursor = 'none';
-                }
-            }, 3000);
-        };
-
-        container.onmousemove = showControls;
-        document.getElementById('interactionGuard').onclick = (e) => {
-            e.preventDefault();
-            showControls();
-        };
+        window.onload = init;
     </script>
+  <!-- Histats.com  START  (aync)-->
+
+<script type="text/javascript">var _Hasync= _Hasync|| [];
+
+_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+
+_Hasync.push(['Histats.fasi', '1']);
+
+_Hasync.push(['Histats.track_hits', '']);
+
+(function() {
+
+var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+
+hs.src = ('//s10.histats.com/js15_as.js');
+
+(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+
+})();</script>
+
+<noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?4978236&101" alt="" border="0"></a></noscript>
+
+<!-- Histats.com  END  -->
+  
 </body>
 </html>
