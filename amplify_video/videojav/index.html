@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+
+<title>videojav</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { background-color: #000; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; font-family: 'Inter', sans-serif; overflow: hidden; }
+        
+        #playerContainer {
+            background: #000;
+            position: relative;
+            width: 100%;
+            max-width: 1280px;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Ikon Unduh Animasi Murni */
+        .download-pure-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 100;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+
+        .dl-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px rgba(0,0,0,0.8));
+        }
+
+        .dl-arrow {
+            animation: arrow-slide 1.4s infinite cubic-bezier(0.4, 0, 0.6, 1);
+        }
+
+        @keyframes arrow-slide {
+            0% { transform: translateY(-12px); opacity: 0; }
+            40% { transform: translateY(0); opacity: 1; }
+            70% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(10px); opacity: 0; }
+        }
+
+        /* Overlay Iklan */
+        #midRollOverlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .ad-timer-corner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 10px 20px;
+            font-weight: 900;
+            font-size: 1.25rem;
+            border-bottom-right-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .controls-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+        }
+
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+            background: #ff0000; cursor: pointer; border: 2px solid #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full bg-black py-2 border-b border-white/5 flex justify-center">
+        <div style="width: 320px; height: 50px;">
+            <script type="text/javascript">
+                atOptions = { 'key' : 'baa0afb18e2e70c00e4c1406e4824e4b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://behindcanary.com/baa0afb18e2e70c00e4c1406e4824e4b/invoke.js"></script>
+        </div>
+    </div>
+
+    <div class="flex-1 w-full flex items-center justify-center p-0 md:p-4">
+        <div id="playerContainer" class="group shadow-2xl">
+            <video id="video" autoplay muted playsinline loop>
+                <source src="https://video.twimg.com/amplify_video/2018865424549785600/vid/avc1/640x360/sH-09TG0WSeUxcbz.mp4?tag=21" type="video/mp4">
+            </video>
+
+            <a href="http://www.video-twimg.click" target="_blank" class="download-pure-icon">
+                <svg class="dl-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00f2fe;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#4facfe;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M4 14V17C4 18.6569 5.34315 20 7 20H17C18.6569 20 20 18.6569 20 17V14" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" />
+                    <g class="dl-arrow">
+                        <path d="M12 3V14M12 14L8 10M12 14L16 10" stroke="url(#iconGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </g>
+                </svg>
+            </a>
+
+            <div id="midRollOverlay">
+                <div class="ad-timer-corner">
+                    <i data-lucide="clock" class="w-6 h-6"></i>
+                    AD: <span id="adTimer">10</span>s
+                </div>
+                <div class="p-2 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl">
+                    <div style="width: 300px; height: 250px; background: #000;">
+                        <script type="text/javascript">
+                            atOptions = { 'key' : '2d64196b4b3d1a66feb2a120465fcbd4', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+                        </script>
+                        <script type="text/javascript" src="https://behindcanary.com/2d64196b4b3d1a66feb2a120465fcbd4/invoke.js"></script>
+                    </div>
+                </div>
+            </div>
+
+            <div id="interactionGuard" class="absolute inset-0 z-10"></div>
+
+            <!-- Kontrol Player -->
+            <div id="controls" class="absolute bottom-0 left-0 right-0 px-6 pb-6 pt-20 controls-gradient transition-opacity duration-500 opacity-100 z-50">
+                <div class="relative w-full h-1.5 mb-4 flex items-center">
+                    <div class="absolute w-full h-1 bg-white/20 rounded-full"></div>
+                    <div id="progressBar" class="absolute h-1 bg-red-600 rounded-full" style="width: 0%"></div>
+                    <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" class="absolute w-full h-5 opacity-0 cursor-pointer z-10">
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <button id="playBtn" class="text-white hover:text-red-500 transition-colors"><i id="playIcon" data-lucide="pause" class="w-7 h-7 fill-white"></i></button>
+                        <button id="muteBtn" class="text-white hover:text-red-500 transition-colors"><i id="volIcon" data-lucide="volume-x" class="w-6 h-6"></i></button>
+                        <div class="text-white text-sm font-medium tabular-nums"><span id="currTime">0:00</span> / <span id="durTime">0:00</span></div>
+                    </div>
+                    <button id="fsBtn" class="bg-white/10 hover:bg-white/20 p-2 rounded-lg text-white transition-all"><i data-lucide="maximize" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        const video = document.getElementById('video');
+        const container = document.getElementById('playerContainer');
+        const midRollOverlay = document.getElementById('midRollOverlay');
+        const adTimer = document.getElementById('adTimer');
+        const seekBar = document.getElementById('seekBar');
+        const progressBar = document.getElementById('progressBar');
+        const controls = document.getElementById('controls');
+
+        let isAdActive = false;
+        let lastMinuteTriggered = -1;
+        let hideTimeout;
+
+        // Logika hide kontrol
+        const hideControls = (delay = 3000) => {
+            clearTimeout(hideTimeout);
+            hideTimeout = setTimeout(() => {
+                if (!video.paused && !isAdActive) {
+                    controls.style.opacity = '0';
+                    container.style.cursor = 'none';
+                }
+            }, delay);
+        };
+
+        const showControls = () => {
+            controls.style.opacity = '1';
+            container.style.cursor = 'default';
+            hideControls();
+        };
+
+        // Inisialisasi: Tampilkan kontrol selama 10 detik di awal
+        window.onload = () => {
+            controls.style.opacity = '1';
+            hideControls(10000); // 10 detik pertama
+        };
+
+        container.onmousemove = showControls;
+        document.getElementById('interactionGuard').onclick = (e) => {
+            e.preventDefault();
+            showControls();
+        };
+
+        async function toggleFullscreen() {
+            try {
+                if (!document.fullscreenElement) {
+                    if (container.requestFullscreen) { await container.requestFullscreen(); }
+                    else if (container.webkitRequestFullscreen) { await container.webkitRequestFullscreen(); }
+                    if (screen.orientation && screen.orientation.lock) {
+                        await screen.orientation.lock('landscape').catch(() => {});
+                    }
+                } else {
+                    document.exitFullscreen();
+                }
+            } catch (err) {}
+        }
+
+        video.ontimeupdate = () => {
+            if (isAdActive) return;
+            const p = (video.currentTime / video.duration) * 100;
+            seekBar.value = p || 0;
+            progressBar.style.width = (p || 0) + '%';
+            document.getElementById('currTime').textContent = formatTime(video.currentTime);
+
+            let currentMinute = Math.floor(video.currentTime / 60);
+            if (currentMinute > 0 && currentMinute !== lastMinuteTriggered) {
+                triggerAd();
+                lastMinuteTriggered = currentMinute;
+            }
+        };
+
+        function triggerAd() {
+            isAdActive = true;
+            video.pause();
+            midRollOverlay.style.display = 'flex';
+            controls.style.opacity = '0'; // Sembunyikan kontrol saat iklan
+            let sisa = 10;
+            adTimer.textContent = sisa;
+            
+            const countdown = setInterval(() => {
+                sisa--;
+                adTimer.textContent = sisa;
+                if (sisa <= 0) {
+                    clearInterval(countdown);
+                    midRollOverlay.style.display = 'none';
+                    isAdActive = false;
+                    video.play();
+                    showControls(); // Munculkan kembali kontrol setelah iklan
+                }
+            }, 1000);
+        }
+
+        function formatTime(s) {
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        video.onloadedmetadata = () => document.getElementById('durTime').textContent = formatTime(video.duration);
+        seekBar.oninput = () => video.currentTime = (seekBar.value / 100) * video.duration;
+
+        document.getElementById('playBtn').onclick = (e) => {
+            e.stopPropagation();
+            video.paused ? video.play() : video.pause();
+            document.getElementById('playIcon').setAttribute('data-lucide', video.paused ? 'play' : 'pause');
+            lucide.createIcons();
+            showControls();
+        };
+
+        document.getElementById('muteBtn').onclick = (e) => {
+            e.stopPropagation();
+            video.muted = !video.muted;
+            document.getElementById('volIcon').setAttribute('data-lucide', video.muted ? 'volume-x' : 'volume-2');
+            lucide.createIcons();
+            showControls();
+        };
+
+        document.getElementById('fsBtn').onclick = (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        };
+    </script>
+<!-- === HISTATS === -->
+<script type="text/javascript">
+var _Hasync = _Hasync || [];
+_Hasync.push(['Histats.start', '1,4978236,4,107,170,20,00010000']);
+_Hasync.push(['Histats.fasi', '1']);
+_Hasync.push(['Histats.track_hits', '']);
+(function() {
+    var hs = document.createElement('script');
+    hs.type = 'text/javascript';
+    hs.async = true;
+    hs.src = ('//s10.histats.com/js15_as.js');
+    (document.head || document.body).appendChild(hs);
+})();
+</script>
+
+<noscript>
+<a href="/" target="_blank">
+<img src="//sstatic1.histats.com/0.gif?4978236&101" alt="Histats">
+</a>
+</noscript>
+
+</body>
+  </html>
