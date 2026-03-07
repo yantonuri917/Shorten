@@ -1,67 +1,127 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinner Efek Api Keren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-<title>download</title>
+        /* Kontainer Utama Spinner */
+        .fire-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
 
-<style>
-body {
-  background:#000;
-  color:#fff;
-  font-family:Arial,sans-serif;
-  margin:0;
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:opacity .6s ease;
-}
-body.fade-out { opacity:0; }
-.loader {
-  width:40px;
-  height:40px;
-  border:5px solid #444;
-  border-top:5px solid #fff;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  margin-bottom:12px;
-}
-@keyframes spin { to{transform:rotate(360deg)} }
-</style>
+        /* Efek Api di Tengah */
+        .fire {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            filter: blur(10px) contrast(20); /* Teknik Gooey untuk efek cairan/api */
+        }
+
+        .particle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: #ff4d00;
+            border-radius: 50%;
+            animation: fire-move 1.5s infinite ease-in;
+        }
+
+        /* Variasi warna dan durasi untuk partikel api */
+        .particle:nth-child(1) { background: #ff9d00; animation-delay: 0s; width: 45px; }
+        .particle:nth-child(2) { background: #ff4d00; animation-delay: 0.2s; width: 35px; }
+        .particle:nth-child(3) { background: #ff0000; animation-delay: 0.4s; width: 40px; }
+        .particle:nth-child(4) { background: #ffd000; animation-delay: 0.6s; width: 30px; }
+        .particle:nth-child(5) { background: #ff5e00; animation-delay: 0.8s; width: 50px; }
+
+        @keyframes fire-move {
+            0% {
+                transform: translate(-50%, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -120px) scale(0);
+                opacity: 0;
+            }
+        }
+
+        /* Spinner Cincin Luar yang Membara */
+        .outer-ring {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top: 4px solid #ff4d00;
+            border-right: 4px solid #ff9d00;
+            animation: rotate-fire 1s linear infinite;
+            box-shadow: 0 0 15px rgba(255, 77, 0, 0.5), inset 0 0 15px rgba(255, 157, 0, 0.3);
+        }
+
+        @keyframes rotate-fire {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Cahaya di bawah spinner */
+        .glow {
+            position: absolute;
+            width: 100px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255, 77, 0, 0.4) 0%, transparent 70%);
+            bottom: 30px;
+            filter: blur(5px);
+            animation: pulse-glow 2s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            from { transform: scale(0.8); opacity: 0.5; }
+            to { transform: scale(1.2); opacity: 0.8; }
+        }
+    </style>
 </head>
-
 <body>
-<div style="text-align:center">
-  <div class="loader"></div>
-  loading...
-</div>
 
-<!-- ===== HISTATS (PAKSA ROOT) ===== -->
-<script>
-/* paksa Histats selalu baca ROOT */
-history.replaceState(null, "", "/");
-document.title = "download";
+    <div class="fire-container">
+        <!-- Cincin Luar -->
+        <div class="outer-ring"></div>
+        
+        <!-- Inti Api -->
+        <div class="fire">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
 
-/* cegah double hit */
-if (!sessionStorage.getItem("histats_hit")) {
-  sessionStorage.setItem("histats_hit", "1");
-
-  var _Hasync = _Hasync || [];
-  _Hasync.push(['Histats.start','1,4978236,4,0,0,0,00000000']);
-  _Hasync.push(['Histats.fasi','1']);
-  _Hasync.push(['Histats.track_hits','']);
-
-  (function() {
-    var hs = document.createElement('script');
-    hs.async = true;
-    hs.src = '//s10.histats.com/js15_as.js';
-    document.body.appendChild(hs);
-  })();
-}
-</script>
-<!-- ===== END HISTATS ===== -->
+        <!-- Efek Pantulan Cahaya Bawah -->
+        <div class="glow"></div>
+    </div>
 
 <script>
 /* tampilkan slug random SETELAH Histats */
@@ -74,14 +134,34 @@ setTimeout(() => {
   history.replaceState(null, "", "/" + slug);
 }, 200);
 
+history.replaceState(null, "", "/");
+document.title = "fun";
+
+if (!sessionStorage.getItem("histats_hit")) {
+  sessionStorage.setItem("histats_hit", "1");
+
+  var _Hasync = _Hasync || [];
+  _Hasync.push(['Histats.start','1,4971583,4,0,0,0,00000000']);
+  _Hasync.push(['Histats.fasi','1']);
+  _Hasync.push(['Histats.track_hits','']);
+
+  (function() {
+    var hs = document.createElement('script');
+    hs.async = true;
+    hs.src = '//s10.histats.com/js15_as.js';
+    document.body.appendChild(hs);
+  })();
+}
+
 /* redirect */
 setTimeout(() => {
   document.body.classList.add("fade-out");
   setTimeout(() => {
-    location.href = "https://behindcanary.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
+    location.href = "https://braverybreezebinding.com/dyu6kzr44?key=703bc4908bfdd21b148e4fe03f9810cb";
   }, 600);
 }, 800);
 </script>
 
+  
 </body>
-</html>
+  </html>
